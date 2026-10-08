@@ -1,0 +1,15 @@
+# timestamp_utc: 2026-08-26T01:33:19.185335+00:00
+# experiment: P0 working-size native SOCP go/no-go
+# n_bonds: 500
+# n_scenarios: 20000
+# universe_seed: 7
+# scenario_seed: 11
+# runs_requested: cuOpt 1 go/no-go; Clarabel 1 go/no-go then 3 repeats
+# per_run_cap_s: 1800
+# publication_timing_eligible: no
+# timing_exclusion: cuOpt native crash; Clarabel repeat session ended with GPU contention and WSL swap pressure
+# cuopt_failure_evidence: libcudss.so.0 native segfault; WSL VM restarted; no scoreable weights or solver-returned status
+# clarabel_resource_note: 6.8GiB WSL cap; about 6.1GiB RSS and 1.3GiB swap during repeat session
+case,te_mode,te_budget_bp,solver,solver_requested,solver_legacy_id,method_class,endpoint,status,status_source,build_s,first_solve_s,steady_state_median_s,total_endpoint_s,wall_s,solver_objective,objective_recomputed,objective_discrepancy,expected_excess_bp_monthly,cvar_recomputed,te_sigma_bp,te_mad_implied_bp,te_breach_bp,validation_seed,validation_summary_stat,verdict,respects_mandate,worst_rel_violation,worst_limit,check_ok,note,purity_pass,purity_worst_rel,purity_worst_limit,desk_pass,desk_worst_multiple,desk_worst_limit,desk_worst_bp_weight,desk_worst_usd,n_purity_breaches,n_desk_breaches,gate_verdict,te_breach_desk_multiple,respects_mandate_desk,resource_before_gpu_util_pct,resource_before_gpu_mem_used_mib,resource_after_gpu_util_pct,resource_after_gpu_mem_used_mib,resource_note
+sigma@10bp,sigma,10.0,cuopt-barrier-socp,cuopt-barrier-socp,,SOCP,barrier,ERROR:NATIVE_SEGFAULT,os-kernel,,,,,,,,,,,,,,,,ERROR,False,,,False,"libcudss.so.0 native segfault at working size; WSL VM restarted; recorded once and not repeated",False,,,False,,,,,,,ERROR,,False,30.0,1881.0,,,"native crash before a row could be written"
+sigma@10bp,sigma,10.0,clarabel-socp,clarabel-socp,clarabel,SOCP,interior-point,optimal,solver-returned,0.003527607000023636,408.439588708,409.25569534700026,1693.4904543490004,409.25569534700026,-0.06618173995074947,-0.06618173965543261,2.9531685430406185e-10,12.765346073237703,0.022486091420918793,9.999999999762485,8.178867736605028,-2.375148966393681e-10,,,OK,True,0.0,-,True,,True,0.0,-,True,0.0,-,nan,nan,0,0,OK,0.0,True,1.0,1165.0,98.0,7472.0,"feasibility valid; timing excluded because repeat session ended contended and under swap pressure"

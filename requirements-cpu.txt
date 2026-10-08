@@ -1,0 +1,13 @@
+# CPU-only tests, figures and artifact verification. Python 3.12, Linux/WSL2.
+# GPU reproduction uses requirements.lock instead.
+numpy==2.4.6
+pandas==2.3.3
+scipy==1.18.0
+cvxpy==1.9.2
+clarabel==0.11.1
+highspy==1.15.1
+ortools==9.15.6755
+matplotlib==3.11.1
+psutil==7.2.2
+requests==2.34.2
+pytest>=8,<10

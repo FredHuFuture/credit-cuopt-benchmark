@@ -1,0 +1,26 @@
+# environments
+.venv/
+__pycache__/
+*.pyc
+*.egg-info/
+
+# notebooks
+.ipynb_checkpoints/
+
+# fetched market data (never commit provider files)
+data/cache/
+*.csv.tmp
+
+# scratch / results staging (committed results live in results/)
+results/tmp/
+
+# editors / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+.commitmsg
+
+# Local reviewer correspondence, draft packages, and release staging
+/private/
+/tmp/

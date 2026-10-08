@@ -1,0 +1,61 @@
+# timestamp_utc: 2026-08-24T12:11:16.305205+00:00
+# platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+# python: 3.12.13
+# cpu_count_logical: 24
+# cvxpy: 1.9.2
+# cuopt: 26.6.0
+# cudf: 26.6.0
+# highspy: 1.15.1
+# ortools: 9.15.6755
+# numpy: 2.4.6
+# cpu_model: 13th Gen Intel(R) Core(TM) i7-13700F
+# gpu: NVIDIA GeForce RTX 4080, 16376 MiB, 595.95
+# ram_visible_gib: 6.8
+# wsl2: yes
+# gpu_util_pct_at_capture: 13
+# gpu_mem_used_mib_at_capture: 1977
+# gpu_contended: no
+# script: scripts/run_credit.py (M2 end-to-end credit run)
+# n_bonds: 500
+# n_scenarios: 20000
+# alpha: 0.95
+# risk_aversion: 3.0
+# turnover: 0.25
+# return_mode: excess
+# universe_seed: 7
+# scenario_seed: 11
+# oos_seed: 101
+# runs_per_config: 3
+# limits: issuer_cap=2.65%, w_max=3.23%, cell_dur_tol=+/-0.25y, total_dur=6.24+/-0.10y, DTS in [829, 1,013]bp-y, turnover=25% one-way
+# economics_reported_from: cuopt@1e-4+xover
+# economics_gate: purity
+# purity_gate_rel: 1e-06
+# desk_gate_bp_weight: 1
+# desk_gate_notional_usd: 1000000000
+# face_cvar_lp: True
+# scenario_gen_s: 0.113
+# scenario_device: GPU (CuPy)
+family,item,portfolio,benchmark,limit,slack,scale,unit,rel_slack,binding,breach,desk_tol,breach_desk_multiple,breach_bp_weight,breach_usd,usd_basis,breaches_purity_gate,breaches_desk_gate
+rating,A,0.37536765664041605,0.2979088464594401,"[19.8%, 39.8%]",0.022541189819024088,0.10000000000000002,weight_fraction,0.22541189819024082,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+rating,AA,0.15839095600971909,0.06757346707098474,"[3.4%, 16.8%]",0.009182511061265664,0.06689336676774618,weight_fraction,0.13727087609668906,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+rating,AAA,0.03622390256802288,0.019111989812465126,"[1.0%, 11.9%]",0.026667907661790318,0.05477799745311628,weight_fraction,0.48683611854586334,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+rating,B,0.023489049832158285,0.04697809966431659,"[2.3%, 14.7%]",-1.0408340855860843e-17,0.06174452491607915,weight_fraction,-1.685710736297262e-16,True,1.0408340855860843e-17,0.0001,1.0408340855860843e-13,1.0408340855860843e-13,1.0408340855860843e-08,weight x $1bn book,False,False
+rating,BB,0.06189916204310981,0.12379832408621927,"[6.2%, 22.4%]",1.734723475976807e-16,0.08094958102155482,weight_fraction,2.1429678252626092e-15,True,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+rating,BBB,0.344629272906574,0.4446292729065742,"[34.5%, 54.5%]",-1.6653345369377348e-16,0.10000000000000003,weight_fraction,-1.6653345369377342e-15,True,1.6653345369377348e-16,0.0001,1.6653345369377348e-12,1.6653345369377348e-12,1.6653345369377348e-07,weight x $1bn book,False,False
+sector,Communications,0.13758481207769457,0.1141142911039949,<= 16.4%,0.026529479026300318,0.04999999999999999,weight_fraction,0.5305895805260065,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+sector,Consumer,0.1426496807206878,0.19536187133659028,<= 24.5%,0.10271219061590248,0.04999999999999999,weight_fraction,2.05424381231805,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+sector,Energy,0.13767656153746696,0.09519336595392269,<= 14.5%,0.007516804416455719,0.04999999999999999,weight_fraction,0.1503360883291144,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+sector,Financials,0.11412411435333125,0.09651455254798058,<= 14.7%,0.03239043819464932,0.04999999999999999,weight_fraction,0.6478087638929865,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+sector,Healthcare,0.1017991826776054,0.1276454275275971,<= 17.8%,0.0758462448499917,0.04999999999999999,weight_fraction,1.5169248969998343,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+sector,Industrials,0.16811031509384317,0.15760457327871935,<= 20.8%,0.039494258184876174,0.04999999999999999,weight_fraction,0.7898851636975237,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+sector,Technology,0.09074290086436071,0.08731852587495671,<= 13.7%,0.046575625010596006,0.05,weight_fraction,0.9315125002119201,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+sector,Utilities,0.10731243267501024,0.12624739237623842,<= 17.6%,0.06893495970122819,0.05000000000000002,weight_fraction,1.3786991940245634,False,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False
+issuer,max issuer weight,0.026472700224971855,0.017648466816647897,<= 2.65%,-1.0408340855860843e-17,0.026472700224971845,weight_fraction,-3.931726181087714e-16,True,1.0408340855860843e-17,0.0001,1.0408340855860843e-13,1.0408340855860843e-13,1.0408340855860843e-08,weight x $1bn book,False,False
+duration,0-3y contribution,0.5178638574204588,0.3542017821087617,±0.25y of bench,0.08633792468830287,0.25,duration_years,0.3453516987532115,False,0.0,0.005,0.0,nan,nan,"n/a: years of duration, dollars need an assumed yield move",False,False
+duration,3-7y contribution,1.0400023116311752,1.2900023116311756,±0.25y of bench,-4.440892098500626e-16,0.25,duration_years,-1.7763568394002505e-15,True,4.440892098500626e-16,0.005,8.881784197001252e-14,nan,nan,"n/a: years of duration, dollars need an assumed yield move",False,False
+duration,7-12y contribution,2.0618139950874395,2.3118139950874377,±0.25y of bench,1.7763568394002505e-15,0.25,duration_years,7.105427357601002e-15,True,0.0,0.005,0.0,nan,nan,"n/a: years of duration, dollars need an assumed yield move",False,False
+duration,12y+ contribution,2.515886901798594,2.279548977110296,±0.25y of bench,0.013662075311701827,0.25,duration_years,0.05464830124680731,False,0.0,0.005,0.0,nan,nan,"n/a: years of duration, dollars need an assumed yield move",False,False
+duration,total duration,6.135567065937668,6.235567065937668,±0.10y of bench,-5.273559366969494e-16,0.1,duration_years,-5.2735593669694936e-15,True,5.273559366969494e-16,0.005,1.0547118733938987e-13,nan,nan,"n/a: years of duration, dollars need an assumed yield move",False,False
+dts,DTS vs cap (bp-y),829.1918064636475,921.3242294040523,"<= 1,013",184.26484588081007,921.3242294040523,dts_bp_years,0.19999999999999957,False,0.0,0.5,0.0,nan,nan,"n/a: bp-years of DTS, dollars need an assumed spread move",False,False
+dts,DTS vs floor (bp-y),829.1918064636475,921.3242294040523,>= 829,4.547473508864641e-13,921.3242294040523,dts_bp_years,4.935801494991748e-16,True,0.0,0.5,0.0,nan,nan,"n/a: bp-years of DTS, dollars need an assumed spread move",False,False
+turnover,one-way turnover,0.24999999999999997,0.0,<= 25.0%,2.7755575615628914e-17,0.25,weight_fraction,1.1102230246251565e-16,True,0.0,0.0001,0.0,0.0,0.0,weight x $1bn book,False,False

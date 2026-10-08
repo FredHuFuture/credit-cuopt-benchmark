@@ -1,0 +1,38 @@
+# timestamp_utc: 2026-08-25T22:01:38.967120+00:00
+# platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+# python: 3.12.13
+# cpu_count_logical: 24
+# cvxpy: 1.9.2
+# cuopt: 26.6.0
+# cudf: 26.6.0
+# highspy: 1.15.1
+# ortools: 9.15.6755
+# numpy: 2.4.6
+# cpu_model: 13th Gen Intel(R) Core(TM) i7-13700F
+# gpu: NVIDIA GeForce RTX 4080, 16376 MiB, 595.95
+# ram_visible_gib: 6.8
+# wsl2: yes
+# gpu_util_pct_at_capture: 34
+# gpu_mem_used_mib_at_capture: 2133
+# gpu_contended: yes — timings unreliable
+# script: scripts/run_te_mandate.py (M6 TE-mandate experiment)
+# n_bonds: 300
+# n_scenarios: 3000
+# alpha: 0.95
+# risk_aversion: 3.0
+# turnover: 0.25
+# universe_seed: 7
+# scenario_seed: 11
+# runs_per_config: 3
+# te_grid_bp:
+# te_budget_source: Bloomberg optimized fixed income index methodology 34100: ex-ante TE <= 10bp
+# periods_per_year: 12
+# mandate_rel_tol: 0.001
+# te_desk_tol_bp: 0.05
+# time_limit_s: 600.0
+# incumbent_te_sigma_bp: 21.972
+# unconstrained_te_sigma_bp: 65.965
+# scenario_device: GPU (CuPy)
+case,te_mode,te_budget_bp,solver,solver_requested,solver_legacy_id,method_class,endpoint,status,status_source,build_s,first_solve_s,steady_state_median_s,total_endpoint_s,wall_s,solver_objective,objective_recomputed,objective_discrepancy,expected_excess_bp_monthly,cvar_recomputed,te_sigma_bp,te_mad_implied_bp,te_breach_bp,validation_seed,validation_summary_stat,verdict,respects_mandate,worst_rel_violation,worst_limit,check_ok,note,purity_pass,purity_worst_rel,purity_worst_limit,desk_pass,desk_worst_multiple,desk_worst_limit,desk_worst_bp_weight,desk_worst_usd,n_purity_breaches,n_desk_breaches,gate_verdict,te_breach_desk_multiple,respects_mandate_desk,resource_before_gpu_util_pct,resource_before_gpu_mem_used_mib,resource_after_gpu_util_pct,resource_after_gpu_mem_used_mib,resource_note
+sigma@10bp,sigma,10.0,cuopt-barrier-socp,cuopt-barrier-socp,,SOCP,barrier,optimal,solver-returned,0.00424323699999718,7.266574673000008,6.282444938000026,26.140245637000078,6.282444938000026,-0.05849673917150838,-0.05849584356350929,8.956079990962706e-07,13.217984838930379,0.019939214015800774,9.999984518623203,8.117059963155926,-1.5481376797410462e-05,,,OK,True,0.0,-,True,,True,0.0,-,True,0.0,-,nan,nan,0,0,OK,0.0,True,26.0,2148.0,95.0,2147.0,
+sigma@10bp,sigma,10.0,clarabel-socp,clarabel-socp,clarabel,SOCP,interior-point,optimal,solver-returned,0.003891984999995657,47.26093806200004,48.211197520999974,191.44444983899996,48.211197520999974,-0.05849574120206259,-0.05849574112714763,7.491496312184154e-11,13.218801442217258,0.019939207090456452,9.999999999715913,8.117503304544565,-2.8408742025476386e-10,,,OK,True,0.0,-,True,,True,0.0,-,True,0.0,-,nan,nan,0,0,OK,0.0,True,46.0,2147.0,25.0,2133.0,

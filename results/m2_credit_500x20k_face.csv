@@ -1,0 +1,42 @@
+# timestamp_utc: 2026-08-24T12:11:16.305205+00:00
+# platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+# python: 3.12.13
+# cpu_count_logical: 24
+# cvxpy: 1.9.2
+# cuopt: 26.6.0
+# cudf: 26.6.0
+# highspy: 1.15.1
+# ortools: 9.15.6755
+# numpy: 2.4.6
+# cpu_model: 13th Gen Intel(R) Core(TM) i7-13700F
+# gpu: NVIDIA GeForce RTX 4080, 16376 MiB, 595.95
+# ram_visible_gib: 6.8
+# wsl2: yes
+# gpu_util_pct_at_capture: 13
+# gpu_mem_used_mib_at_capture: 1977
+# gpu_contended: no
+# script: scripts/run_credit.py (M2 end-to-end credit run)
+# n_bonds: 500
+# n_scenarios: 20000
+# alpha: 0.95
+# risk_aversion: 3.0
+# turnover: 0.25
+# return_mode: excess
+# universe_seed: 7
+# scenario_seed: 11
+# oos_seed: 101
+# runs_per_config: 3
+# limits: issuer_cap=2.65%, w_max=3.23%, cell_dur_tol=+/-0.25y, total_dur=6.24+/-0.10y, DTS in [829, 1,013]bp-y, turnover=25% one-way
+# economics_reported_from: cuopt@1e-4+xover
+# economics_gate: purity
+# purity_gate_rel: 1e-06
+# desk_gate_bp_weight: 1
+# desk_gate_notional_usd: 1000000000
+# face_cvar_lp: True
+# scenario_gen_s: 0.113
+# scenario_device: GPU (CuPy)
+vertex,extremizes,dts_bp_years,duration,exp_return,cvar_eval,l1_vs_baseline,selected_using_eval_set,status,face_dts_target,face_dts_band,face_floor_binds,face_n_vertices,face_exp_return_lo,face_exp_return_hi,face_exp_return_range,face_cvar_lo,face_cvar_lo_is_exact,face_cvar_lo_uses_eval_set,face_cvar_hi_observed,face_cvar_hi_is_lower_bound,face_cvar_lo_exante,face_cvar_hi_exante,face_max_vertex_l1,face_looks_like_a_point
+baseline_vertex,min DTS (arbitrary vertex of the face),829.191806463647,6.135567065937665,0.0011336516694068972,0.0220092275041307,0.0,False,optimal,829.191806463647,8.291918064636471e-07,True,4,0.0008139374628206732,0.0014212968138833297,0.0006073593510626565,0.02019713819579741,True,True,0.025937479332061943,True,0.021746634099152732,0.025937479332061943,0.8862648310321413,False
+max_return,max mu'w at fixed DTS,829.1918072928388,6.135567065937668,0.0014212968138833297,0.021746634099152732,0.78571070656821,False,optimal,829.191806463647,8.291918064636471e-07,True,4,0.0008139374628206732,0.0014212968138833297,0.0006073593510626565,0.02019713819579741,True,True,0.025937479332061943,True,0.021746634099152732,0.025937479332061943,0.8862648310321413,False
+min_return,min mu'w at fixed DTS,829.1918064636469,6.33556706593767,0.0008139374628206732,0.025937479332061943,0.8188629007549226,False,optimal,829.191806463647,8.291918064636471e-07,True,4,0.0008139374628206732,0.0014212968138833297,0.0006073593510626565,0.02019713819579741,True,True,0.025937479332061943,True,0.021746634099152732,0.025937479332061943,0.8862648310321413,False
+min_cvar,min CVaR95% at fixed DTS,829.1918064636461,6.135567065937664,0.0011655943382677632,0.02019713819579741,0.8466214452744505,True,optimal,829.191806463647,8.291918064636471e-07,True,4,0.0008139374628206732,0.0014212968138833297,0.0006073593510626565,0.02019713819579741,True,True,0.025937479332061943,True,0.021746634099152732,0.025937479332061943,0.8862648310321413,False

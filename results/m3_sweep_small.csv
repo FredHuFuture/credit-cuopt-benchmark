@@ -1,0 +1,36 @@
+# timestamp_utc: 2026-07-25T23:56:14.257237+00:00
+# platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+# python: 3.12.13
+# cpu_count_logical: 24
+# cvxpy: 1.9.2
+# cuopt: 26.6.0
+# cudf: 26.6.0
+# highspy: 1.15.1
+# ortools: 9.15.6755
+# numpy: 2.4.6
+# cpu_model: 13th Gen Intel(R) Core(TM) i7-13700F
+# gpu: NVIDIA GeForce RTX 4080, 16376 MiB, 595.95
+# ram_visible_gib: 9.7
+# wsl2: yes
+# sweep_grid: small
+# time_limit_s: 120.0
+# runs_per_config: 2
+# threads_cpu_solvers: 16
+# pdlp_tolerance: 0.0001
+# problem: credit Mean-CVaR with the full desk limit set
+# alpha: 0.95
+# risk_aversion: 3.0
+# isolation: one clean subprocess per solver configuration
+solver,hardware,tolerances,threads,n_assets,n_scenarios,nnz_est,status,dnf,n_runs,wall_s_median,wall_s_min,wall_s_max,solver_internal_s,overhead_s,compile_s,objective,check_ok,check_obj_gap,check_budget_resid,gap_vs_ref_bp,weight_l1_vs_ref,dust_positions,positions,config,notes,wall_s_all,n_bonds,nnz,cell,scenario_gen_s
+cuopt-pdlp@0.0001,GPU,"PDLP abs+rel primal/dual/gap tolerances = 0.0001, mode=Stable2",,300,2000,604000,optimal,False,2,0.9107,0.899,0.9224,0.8789,0.0318,0.1811,-0.04703752357052733,True,1.83e-04,6.87e-04,,,0,190,"{""solver_method"": ""PDLP"", ""pdlp_solver_mode"": ""Stable2"", ""absolute_primal_tolerance"": 0.0001, ""relative_primal_tolerance"": 0.0001, ""absolute_dual_tolerance"": 0.0001, ""relative_dual_tolerance"": 0.0001, ""absolute_gap_tolerance"": 0.0001, ""relative_gap_tolerance"": 0.0001, ""time_limit"": 120.0, ""crossover"": 0}",,"[0.899, 0.9224]",300,604000,300x2000,0.056
+cuopt-pdlp+xover@0.0001,GPU,"PDLP abs+rel primal/dual/gap tolerances = 0.0001, mode=Stable2, crossover to basic solution",,300,2000,604000,optimal,False,2,1.7844,1.5472,2.0217,1.69,0.0944,0.1425,-0.04730197364417564,True,1.02e-15,6.44e-15,,,0,155,"{""solver_method"": ""PDLP"", ""pdlp_solver_mode"": ""Stable2"", ""absolute_primal_tolerance"": 0.0001, ""relative_primal_tolerance"": 0.0001, ""absolute_dual_tolerance"": 0.0001, ""relative_dual_tolerance"": 0.0001, ""absolute_gap_tolerance"": 0.0001, ""relative_gap_tolerance"": 0.0001, ""time_limit"": 120.0, ""crossover"": 1}",,"[2.0217, 1.5472]",300,604000,300x2000,0.056
+ortools-pdlp@0.0001,CPU,"PDLP eps_optimal abs+rel = 0.0001, 16 threads",16,300,2000,604000,optimal,False,2,9.8396,9.8113,9.868,9.8078,0.0319,0.154,-0.047296326212822024,True,1.10e-05,2.33e-05,,,0,154,PrimalDualHybridGradientParams{ termination_criteria { simple_optimality_criteria { eps_optimal_absolute: 0.0001 eps_optimal_relative: 0.0001 } } num_threads: 16 }; interface injects presolve_options.use_glop=True; time_limit_sec=120.0,,"[9.8113, 9.868]",300,604000,300x2000,0.056
+highs-simplex,CPU,"defaults (primal/dual feasibility 1e-7), vertex solution",16,300,2000,604000,optimal,False,2,0.5485,0.5456,0.5514,0.4967,0.0518,0.1458,-0.04730197364417644,True,6.94e-18,2.22e-16,,,0,155,"{""solver"": ""simplex"", ""time_limit"": 120.0, ""threads"": 16, ""parallel"": ""on"", ""random_seed"": 0}",,"[0.5514, 0.5456]",300,604000,300x2000,0.056
+cuopt-pdlp@0.0001,GPU,"PDLP abs+rel primal/dual/gap tolerances = 0.0001, mode=Stable2",,300,8000,2416000,optimal,False,2,1.8778,1.7156,2.04,1.8029,0.0749,0.7921,-0.05053053365977364,False,1.63e-04,1.42e-03,,,2,187,"{""solver_method"": ""PDLP"", ""pdlp_solver_mode"": ""Stable2"", ""absolute_primal_tolerance"": 0.0001, ""relative_primal_tolerance"": 0.0001, ""absolute_dual_tolerance"": 0.0001, ""relative_dual_tolerance"": 0.0001, ""absolute_gap_tolerance"": 0.0001, ""relative_gap_tolerance"": 0.0001, ""time_limit"": 120.0, ""crossover"": 0}",CHECK FAILED: budget violated,"[1.7156, 2.04]",300,2416000,300x8000,0.093
+cuopt-pdlp+xover@0.0001,GPU,"PDLP abs+rel primal/dual/gap tolerances = 0.0001, mode=Stable2, crossover to basic solution",,300,8000,2416000,optimal,False,2,5.0182,4.7823,5.2541,4.799,0.2192,0.8823,-0.05074694921190392,True,7.63e-17,7.77e-16,,,0,156,"{""solver_method"": ""PDLP"", ""pdlp_solver_mode"": ""Stable2"", ""absolute_primal_tolerance"": 0.0001, ""relative_primal_tolerance"": 0.0001, ""absolute_dual_tolerance"": 0.0001, ""relative_dual_tolerance"": 0.0001, ""absolute_gap_tolerance"": 0.0001, ""relative_gap_tolerance"": 0.0001, ""time_limit"": 120.0, ""crossover"": 1}",,"[5.2541, 4.7823]",300,2416000,300x8000,0.093
+ortools-pdlp@0.0001,CPU,"PDLP eps_optimal abs+rel = 0.0001, 16 threads",16,300,8000,2416000,optimal,False,2,8.4912,8.4039,8.5786,8.4051,0.0861,0.8272,-0.050738025403390556,True,6.98e-06,2.02e-06,,,0,156,PrimalDualHybridGradientParams{ termination_criteria { simple_optimality_criteria { eps_optimal_absolute: 0.0001 eps_optimal_relative: 0.0001 } } num_threads: 16 }; interface injects presolve_options.use_glop=True; time_limit_sec=120.0,,"[8.4039, 8.5786]",300,2416000,300x8000,0.093
+highs-simplex,CPU,"defaults (primal/dual feasibility 1e-7), vertex solution",16,300,8000,2416000,optimal,False,2,4.3463,4.3392,4.3535,4.1202,0.2262,0.7656,-0.050746949145545575,True,1.39e-17,4.44e-16,,,0,156,"{""solver"": ""simplex"", ""time_limit"": 120.0, ""threads"": 16, ""parallel"": ""on"", ""random_seed"": 0}",,"[4.3392, 4.3535]",300,2416000,300x8000,0.093
+cuopt-pdlp@0.0001,GPU,"PDLP abs+rel primal/dual/gap tolerances = 0.0001, mode=Stable2",,800,5000,4010000,optimal,False,2,2.4859,2.4651,2.5066,2.368,0.1179,1.5244,-0.04954544255300824,True,2.60e-05,3.84e-04,,,7,430,"{""solver_method"": ""PDLP"", ""pdlp_solver_mode"": ""Stable2"", ""absolute_primal_tolerance"": 0.0001, ""relative_primal_tolerance"": 0.0001, ""absolute_dual_tolerance"": 0.0001, ""relative_dual_tolerance"": 0.0001, ""absolute_gap_tolerance"": 0.0001, ""relative_gap_tolerance"": 0.0001, ""time_limit"": 120.0, ""crossover"": 0}",,"[2.4651, 2.5066]",800,4010000,800x5000,0.096
+cuopt-pdlp+xover@0.0001,GPU,"PDLP abs+rel primal/dual/gap tolerances = 0.0001, mode=Stable2, crossover to basic solution",,800,5000,4010000,optimal,False,2,20.8328,19.7169,21.9487,20.4235,0.4093,1.4959,-0.04955977092618173,True,2.08e-17,7.77e-16,,,0,410,"{""solver_method"": ""PDLP"", ""pdlp_solver_mode"": ""Stable2"", ""absolute_primal_tolerance"": 0.0001, ""relative_primal_tolerance"": 0.0001, ""absolute_dual_tolerance"": 0.0001, ""relative_dual_tolerance"": 0.0001, ""absolute_gap_tolerance"": 0.0001, ""relative_gap_tolerance"": 0.0001, ""time_limit"": 120.0, ""crossover"": 1}",,"[21.9487, 19.7169]",800,4010000,800x5000,0.096
+ortools-pdlp@0.0001,CPU,"PDLP eps_optimal abs+rel = 0.0001, 16 threads",16,800,5000,4010000,optimal,False,2,39.1582,39.0947,39.2218,38.9584,0.1998,1.6964,-0.04956002711250004,True,3.42e-06,1.47e-06,,,20,412,PrimalDualHybridGradientParams{ termination_criteria { simple_optimality_criteria { eps_optimal_absolute: 0.0001 eps_optimal_relative: 0.0001 } } num_threads: 16 }; interface injects presolve_options.use_glop=True; time_limit_sec=120.0,,"[39.0947, 39.2218]",800,4010000,800x5000,0.096
+highs-simplex,CPU,"defaults (primal/dual feasibility 1e-7), vertex solution",16,800,5000,4010000,optimal,False,2,5.5867,5.5049,5.6685,5.2482,0.3385,1.4637,-0.049559770926181725,True,2.08e-17,4.44e-16,,,0,410,"{""solver"": ""simplex"", ""time_limit"": 120.0, ""threads"": 16, ""parallel"": ""on"", ""random_seed"": 0}",,"[5.6685, 5.5049]",800,4010000,800x5000,0.096

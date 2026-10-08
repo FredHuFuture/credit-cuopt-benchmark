@@ -1,0 +1,29 @@
+# timestamp_utc: 2026-08-24T15:11:47.772157+00:00
+# platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+# python: 3.12.13
+# cpu_count_logical: 24
+# cvxpy: 1.9.2
+# cuopt: 26.6.0
+# cudf: 26.6.0
+# highspy: 1.15.1
+# ortools: 9.15.6755
+# numpy: 2.4.6
+# cpu_model: 13th Gen Intel(R) Core(TM) i7-13700F
+# gpu: NVIDIA GeForce RTX 4080, 16376 MiB, 595.95
+# ram_visible_gib: 6.8
+# wsl2: yes
+# gpu_util_pct_at_capture: 0
+# gpu_mem_used_mib_at_capture: 2006
+# gpu_contended: no
+# script: scripts/check_demo_latency.py
+# question: which interactive path is faster: the hand-rolled CSR + cuOpt DataModel path or plain CVXPY
+# timing_boundary: both paths time model build + solve; the hand-rolled timer starts above the DataModel rebuild (see src/interactive.py)
+# reps_per_size: 3
+# aggregation: median of reps at distinct knob values
+# tolerance: 0.0001
+# universe_seed: 7
+# scenario_seed: 11
+n_bonds,n_scenarios,nnz,handrolled_s_median,handrolled_s_min,handrolled_s_max,handrolled_worst_rel_violation,cvxpy_s_median,cvxpy_s_min,cvxpy_s_max,cvxpy_worst_rel_violation,reps,tol
+500,4000,2014000,0.4663,0.452,0.5617,3.696e-01,0.7569,0.7412,0.7998,6.554e-02,3,0.0001
+500,10000,5026000,1.4539,1.2924,1.6944,1.990e-03,2.687,2.6837,2.7931,2.282e-02,3,0.0001
+500,20000,10046000,3.0223,2.8078,3.0591,1.493e-03,7.0961,7.0002,7.394,4.439e-02,3,0.0001

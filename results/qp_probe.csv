@@ -1,0 +1,59 @@
+# timestamp_utc: 2026-08-24T19:33:10.668576+00:00
+# platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+# python: 3.12.13
+# cpu_count_logical: 24
+# cvxpy: 1.9.2
+# cuopt: 26.6.0
+# cudf: 26.6.0
+# highspy: 1.15.1
+# ortools: 9.15.6755
+# numpy: 2.4.6
+# cpu_model: 13th Gen Intel(R) Core(TM) i7-13700F
+# gpu: NVIDIA GeForce RTX 4080, 16376 MiB, 595.95
+# ram_visible_gib: 6.8
+# wsl2: yes
+# gpu_util_pct_at_capture: 7
+# gpu_mem_used_mib_at_capture: 3096
+# gpu_contended: no
+# clarabel: 0.11.1
+# osqp: 1.1.3
+# scs: 3.2.11
+# scipy: 1.18.0
+# pandas: 2.3.3
+# experiment: M7 QP branch: mean-variance on cuOpt barrier (GPU) vs a CPU interior-point solver vs the factored low-rank-plus-diagonal formulation on CPU, on ONE universe and ONE limit sheet
+# hypothesis: cuOpt QP is barrier-only with no crossover, so mean-variance inherits none of the PDLP innovation; the open question is whether a GPU repeals Amundi's index-scale objection to a covariance objective (29,222 securities) or whether the factored representation repeals it on a CPU
+# objective: max mu'w - (lam/2) w'Sigma w
+# sigma_basis: factor
+# sigma_source: Sigma = B diag(f) B' + diag(d) with B analytic from the scenario generator's own factor structure (beta_i = -SD_i * OAS_i * hy_mult_i) and f, d estimated from the same scenario draw the CVaR branch uses; F eigendecomposed and folded into B, which is exact and makes the factored Hessian strictly diagonal. Dense arms received exactly that Sigma materialized, so every arm solves the IDENTICAL problem and the comparison is representation-and-hardware only
+# grid_n_bonds: 2000,5000
+# amundi_index_scale_n: 29222
+# arms: cuopt_barrier_dense [cuOpt GPU barrier (cuDSS) on a dense N x N Hessian], clarabel_dense [Clarabel CPU interior-point on a dense N x N Hessian], clarabel_factored [Clarabel CPU interior-point on the factored Hessian], cuopt_barrier_factored [cuOpt GPU barrier on the low-rank-plus-diagonal Hessian]
+# cuopt_method: pinned to Barrier on every cuOpt solve; the CUOPT_METHOD default is Concurrent and CVXPY does not force Barrier for a plain quadratic objective
+# cuopt_qp_reachability: CVXPY CUOPT interface accepts a quadratic objective
+# crossover: NOT AVAILABLE for QP in cuOpt. The LP branch's 'clean the interior point up to a vertex' remedy has no analogue here, which is why n_positions, n_dust and respects_mandate are the headline columns
+# tolerances: NOT matched and cannot be: cuOpt barrier solves to ~1e-8 relative by default and exposes no equivalent of the six PDLP *_tolerance knobs (those default to 1e-4 and belong to PDLP); Clarabel and OSQP use their own defaults. Accuracy is read off the independent numpy recomputation in obj_rel_gap instead
+# q_convention_calibration: every arm solved a 2-variable QP with closed-form optimum -0.8121875 at p*=0.2625 before any timing; a doubled risk aversion would return -1.68734375
+# n_scenarios_for_sigma: 20000
+# risk_aversion: 3.0
+# turnover_one_way: 0.25
+# universe_seed: 7
+# scenario_seed: 11
+# runs_per_config: 1
+# time_limit_s: 300.0
+# threads_cpu_solvers: 16
+# thread_pinning: OMP/OPENBLAS/MKL/NUMEXPR/RAYON/VECLIB set in every worker's environment before import
+# host_mem_budget_gib: 5.9
+# device_mem_budget_gib: 16.0
+# memory_model: dense host peak estimated at 48 B per Hessian entry (fp64 matrix + COO + CSR in flight), device at 3x the matrix; cells over 50% of host or 60% of device are REFUSED and recorded. These are estimates and must be recalibrated from the first real OOM, as run_sweep.py's BYTES_PER_NNZ_PEAK was
+# isolation: one clean subprocess per (n_bonds, arm)
+# controls: identical universe, seeds, limit sheet, risk aversion and CVXPY model definition across arms; only the Hessian representation and the hardware change
+# not_controlled: cuOpt barrier and Clarabel are different interior-point implementations (predictor-corrector over cuDSS vs homogeneous self-dual embedding over sparse LDL), not the same algorithm; tolerances are each solver's own defaults; CVXPY canonicalization of a dense P grows as N^2 and is reported separately in compile_s rather than eliminated
+arm,form,hardware,solver,arm_desc,solver_opts,calibration_obj,calibration_p,calibration_abs_gap,n_bonds,n_factors,quad_nnz,q_gib_dense,q_gib_arm,sigma_build_s,constraint_names,objective_kind,compile_s,status,dnf,n_runs,wall_s_median,wall_s_min,wall_s_max,wall_s_all,solver_internal_s,objective,obj_recomputed,obj_abs_gap,obj_rel_gap,portfolio_variance,portfolio_vol,check_ok,check_budget_resid,max_bound_violation,n_positions,n_dust,max_weight,worst_rel_violation,limits_verdict,worst_limit,respects_mandate,notes,host_peak_est_gib,n_scenarios_for_sigma,scenario_gen_s,sigma_basis,sigma_rel_fro_err,sigma_max_rel_diag_err,portvol_rel_err_median,portvol_rel_err_max
+cuopt_barrier_dense,dense,GPU,CUOPT,cuOpt GPU barrier (cuDSS) on a dense N x N Hessian,"{""solver_method"": ""Barrier"", ""time_limit"": 300.0}",-0.8121874999999694,0.26249999990270756,3.0531133177191805e-14,2000,13,4000000,0.0298,0.029802,0.0662,budget|w_max|rating_bands_lo|rating_bands_hi|sector_caps|issuer_caps|cell_duration_match|total_duration_match|dts_cap|dts_floor|turnover,mv,0.5299,optimal,False,1,2.6131,2.6131,2.6131,[2.6131],2.4282,0.0018009119026147406,0.0018009119026147406,0.000e+00,0.000e+00,0.00012689150572467637,0.01126461298601405,True,4.15e-11,0.00e+00,1205,795,0.00762841,0.000e+00,ok,-,True,,0.179,20000,0.393,factor,0.0,0.0,0.0,0.0
+clarabel_dense,dense,CPU,CLARABEL,Clarabel CPU interior-point on a dense N x N Hessian,"{""time_limit"": 300.0}",-0.8121875000000041,0.2625000023544573,4.107825191113079e-15,2000,13,4000000,0.0298,0.029802,0.0665,budget|w_max|rating_bands_lo|rating_bands_hi|sector_caps|issuer_caps|cell_duration_match|total_duration_match|dts_cap|dts_floor|turnover,mv,0.5067,optimal,False,1,4.2406,4.2406,4.2406,[4.2406],4.0611,0.0018018499007538312,0.0018018499007538312,0.000e+00,0.000e+00,0.0001269007022553338,0.011265021183084114,True,1.03e-08,0.00e+00,973,337,0.00762845,8.384e-06,VIOLATED one-way turnover by 8.38e-06 of its scale,one-way turnover,False,,0.179,20000,0.393,factor,0.0,0.0,0.0,0.0
+clarabel_factored,factored,CPU,CLARABEL,Clarabel CPU interior-point on the factored Hessian,"{""time_limit"": 300.0}",-0.8121875000000041,0.2625000023544573,4.107825191113079e-15,2000,13,2013,0.0298,1.5e-05,0.0012,budget|w_max|factor_definition|rating_bands_lo|rating_bands_hi|sector_caps|issuer_caps|cell_duration_match|total_duration_match|dts_cap|dts_floor|turnover,mv,0.0217,optimal,False,1,0.1096,0.1096,0.1096,[0.1096],0.1029,0.001801849901347779,0.0018018499007538369,5.939e-13,3.296e-10,0.00012690070225533295,0.011265021183084076,True,1.03e-08,0.00e+00,973,337,0.00762845,8.384e-06,VIOLATED one-way turnover by 8.38e-06 of its scale,one-way turnover,False,,0.015,20000,0.393,factor,0.0,0.0,0.0,0.0
+cuopt_barrier_factored,factored,GPU,CUOPT,cuOpt GPU barrier on the low-rank-plus-diagonal Hessian,"{""solver_method"": ""Barrier"", ""time_limit"": 300.0}",-0.8121874999999694,0.26249999990270756,3.0531133177191805e-14,2000,13,2013,0.0298,1.5e-05,0.0013,budget|w_max|factor_definition|rating_bands_lo|rating_bands_hi|sector_caps|issuer_caps|cell_duration_match|total_duration_match|dts_cap|dts_floor|turnover,mv,0.0222,optimal,False,1,0.6157,0.6157,0.6157,[0.6157],0.6098,0.0018014325703087377,0.001801432570303584,5.154e-15,2.861e-12,0.00012690191785372505,0.011265075137509073,True,2.60e-11,0.00e+00,1123,877,0.00762844,0.000e+00,ok,-,True,,0.015,20000,0.393,factor,0.0,0.0,0.0,0.0
+cuopt_barrier_dense,dense,GPU,CUOPT,cuOpt GPU barrier (cuDSS) on a dense N x N Hessian,"{""solver_method"": ""Barrier"", ""time_limit"": 300.0}",-0.8121874999999694,0.26249999990270756,3.0531133177191805e-14,5000,13,25000000,0.1863,0.186265,0.4049,budget|w_max|rating_bands_lo|rating_bands_hi|sector_caps|issuer_caps|cell_duration_match|total_duration_match|dts_cap|dts_floor|turnover,mv,4.146,optimal,False,1,22.0318,22.0318,22.0318,[22.0318],20.507,0.0018115714014504817,0.0018115714014504817,0.000e+00,0.000e+00,0.00012939227093439995,0.011375072348534753,True,5.93e-12,0.00e+00,2699,2301,0.00499998,0.000e+00,ok,-,True,,1.118,20000,0.894,factor,0.0,0.0,0.0,0.0
+clarabel_dense,dense,CPU,CLARABEL,Clarabel CPU interior-point on a dense N x N Hessian,"{""time_limit"": 300.0}",-0.8121875000000041,0.2625000023544573,4.107825191113079e-15,5000,13,25000000,0.1863,0.186265,0.4401,budget|w_max|rating_bands_lo|rating_bands_hi|sector_caps|issuer_caps|cell_duration_match|total_duration_match|dts_cap|dts_floor|turnover,mv,3.945,optimal,False,1,37.5349,37.5349,37.5349,[37.5349],36.2586,0.0018125264934266635,0.0018125264934266635,0.000e+00,0.000e+00,0.00012942049361547056,0.011376312830415247,True,1.71e-08,0.00e+00,2463,1383,0.005,4.021e-05,VIOLATED one-way turnover by 4.02e-05 of its scale,one-way turnover,False,,1.118,20000,0.894,factor,0.0,0.0,0.0,0.0
+clarabel_factored,factored,CPU,CLARABEL,Clarabel CPU interior-point on the factored Hessian,"{""time_limit"": 300.0}",-0.8121875000000041,0.2625000023544573,4.107825191113079e-15,5000,13,5013,0.1863,3.7e-05,0.0014,budget|w_max|factor_definition|rating_bands_lo|rating_bands_hi|sector_caps|issuer_caps|cell_duration_match|total_duration_match|dts_cap|dts_floor|turnover,mv,0.0494,optimal,False,1,0.4519,0.4519,0.4519,[0.4519],0.4363,0.00181252649501386,0.0018125264934265395,1.587e-12,8.758e-10,0.0001294204936154767,0.011376312830415515,True,1.71e-08,0.00e+00,2463,1383,0.005,4.021e-05,VIOLATED one-way turnover by 4.02e-05 of its scale,one-way turnover,False,,0.036,20000,0.894,factor,0.0,0.0,0.0,0.0
+cuopt_barrier_factored,factored,GPU,CUOPT,cuOpt GPU barrier on the low-rank-plus-diagonal Hessian,"{""solver_method"": ""Barrier"", ""time_limit"": 300.0}",-0.8121874999999694,0.26249999990270756,3.0531133177191805e-14,5000,13,5013,0.1863,3.7e-05,0.0021,budget|w_max|factor_definition|rating_bands_lo|rating_bands_hi|sector_caps|issuer_caps|cell_duration_match|total_duration_match|dts_cap|dts_floor|turnover,mv,0.0484,optimal,False,1,0.6799,0.6799,0.6799,[0.6799],0.6708,0.0018115779238821609,0.001811577923881747,4.139e-16,2.285e-13,0.00012939061588232483,0.011374999599223062,True,1.92e-12,0.00e+00,2740,2260,0.00499999,0.000e+00,ok,-,True,,0.036,20000,0.894,factor,0.0,0.0,0.0,0.0

@@ -1,0 +1,28 @@
+# timestamp_utc: 2026-08-24T15:10:07.124186+00:00
+# platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+# python: 3.12.13
+# cpu_count_logical: 24
+# cvxpy: 1.9.2
+# cuopt: 26.6.0
+# cudf: 26.6.0
+# highspy: 1.15.1
+# ortools: 9.15.6755
+# numpy: 2.4.6
+# cpu_model: 13th Gen Intel(R) Core(TM) i7-13700F
+# gpu: NVIDIA GeForce RTX 4080, 16376 MiB, 595.95
+# ram_visible_gib: 6.8
+# wsl2: yes
+# gpu_util_pct_at_capture: 0
+# gpu_mem_used_mib_at_capture: 2006
+# gpu_contended: no
+# script: scripts/check_warmstart_tradeoff.py
+# question: warm start WITHOUT presolve vs cold solve WITH presolve: the choice an interactive app faces
+# reps_per_mode: 3
+# aggregation: median of reps at distinct knob values
+# universe_seed: 7
+# scenario_seed: 11
+# verdict: WARM START wins
+mode,n_bonds,n_scenarios,lp_rows,lp_cols,nnz,wall_s_median,wall_s_min,wall_s_max,worst_rel_violation,warm_start_active,reps
+cold + presolve,500,20000,21222,21001,10046000,3.1209,2.9446,3.1246,1.493e-03,False,3
+"cold, no presolve",500,20000,21222,21001,10046000,1.8229,1.7905,2.0294,5.689e-03,False,3
+"warm, no presolve",500,20000,21222,21001,10046000,1.7173,1.3407,2.1599,5.785e-04,True,3

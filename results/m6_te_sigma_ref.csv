@@ -1,0 +1,42 @@
+# timestamp_utc: 2026-08-25T05:52:42.970223+00:00
+# platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+# python: 3.12.13
+# cpu_count_logical: 24
+# cvxpy: 1.9.2
+# cuopt: 26.6.0
+# cudf: 26.6.0
+# highspy: 1.15.1
+# ortools: 9.15.6755
+# numpy: 2.4.6
+# cpu_model: 13th Gen Intel(R) Core(TM) i7-13700F
+# gpu: NVIDIA GeForce RTX 4080, 16376 MiB, 595.95
+# ram_visible_gib: 6.8
+# wsl2: yes
+# gpu_util_pct_at_capture: 46
+# gpu_mem_used_mib_at_capture: 2929
+# gpu_contended: yes — timings unreliable
+# script: scripts/run_te_mandate.py (M6 TE-mandate experiment)
+# n_bonds: 300
+# n_scenarios: 3000
+# alpha: 0.95
+# risk_aversion: 3.0
+# turnover: 0.25
+# universe_seed: 7
+# scenario_seed: 11
+# runs_per_config: 3
+# te_grid_bp: 10
+# te_budget_source: Bloomberg optimized fixed income index methodology 34100: ex-ante TE <= 10bp
+# periods_per_year: 12
+# mandate_rel_tol: 0.001
+# te_desk_tol_bp: 0.05
+# time_limit_s: 1800.0
+# incumbent_te_sigma_bp: 21.972
+# unconstrained_te_sigma_bp: 65.965
+# scenario_device: GPU (CuPy)
+case,te_mode,te_budget_bp,solver,status,wall_s,te_sigma_bp,te_mad_implied_bp,te_breach_bp,verdict,respects_mandate,worst_rel_violation,worst_limit,check_ok,note,purity_pass,purity_worst_rel,purity_worst_limit,desk_pass,desk_worst_multiple,desk_worst_limit,desk_worst_bp_weight,desk_worst_usd,n_purity_breaches,n_desk_breaches,gate_verdict,te_breach_desk_multiple,respects_mandate_desk
+mad@10bp,mad,10.0,clarabel,optimal,104.2563889089979,27.991507640441007,9.99999802179265,-1.978207350816774e-06,OK,True,0.0,-,True,,True,0.0,-,True,0.0,-,nan,nan,0.0,0.0,OK,0.0,True
+mad@10bp,mad,10.0,cuopt@1e-4,optimal,1.1478713140022592,27.961292476399912,10.005172394502054,0.00517239450205409,OK,True,0.0005172394502054089,TE MAD-implied (bp ann.),True,,False,0.0005172394502054089,TE MAD-implied (bp ann.),True,0.10344789004108179,TE MAD-implied (bp ann.),nan,nan,3.0,0.0,DESK-OK,0.10344789004108179,True
+mad@10bp,mad,10.0,highs-simplex,optimal,118.85606730200016,27.991538200389837,10.000000000000671,6.714628852932947e-13,OK,True,8.520961713998076e-14,total duration,True,,True,8.520961713998076e-14,total duration,True,1.3429257705865894e-11,TE MAD-implied (bp ann.),nan,nan,0.0,0.0,OK,1.3429257705865894e-11,True
+sigma@10bp,sigma,10.0,clarabel,optimal,78.1042115220007,9.999999999715913,8.117503304544565,-2.8408742025476386e-10,OK,True,0.0,-,True,,True,0.0,-,True,0.0,-,nan,nan,0.0,0.0,OK,0.0,True
+sigma@10bp,sigma,10.0,cuopt@1e-4,NOT-IN-CLASS,nan,nan,nan,nan,NOT-IN-CLASS,False,nan,-,False,LP-only solver cannot express an SOC constraint,False,nan,-,False,nan,-,nan,nan,nan,nan,NOT-IN-CLASS,nan,False
+sigma@10bp,sigma,10.0,highs-simplex,NOT-IN-CLASS,nan,nan,nan,nan,NOT-IN-CLASS,False,nan,-,False,LP-only solver cannot express an SOC constraint,False,nan,-,False,nan,-,nan,nan,nan,nan,NOT-IN-CLASS,nan,False

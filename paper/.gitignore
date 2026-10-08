@@ -1,0 +1,30 @@
+# numbers.tex is generated, and deliberately not committed.
+#
+# The point of scripts/make_paper_numbers.py is that the paper cannot print a
+# quantity that is not in a committed CSV: run it strict and it either writes
+# every macro or it fails and names what is missing. Committing its output
+# would let a stale numbers.tex — or worse, an --allow-missing build full of
+# "??" placeholders — survive a change to the data underneath it, which is
+# the exact failure this pipeline exists to prevent.
+#
+# Regenerate with:  ./paper/build.sh      (strict; refuses to build on gaps)
+#                   ./paper/build.sh --draft
+numbers.tex
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+main.pdf
+
+# arXiv submission packaging (make_arxiv.sh). The tarball is a build
+# product of main.tex plus results/; regenerate it, do not commit it.
+arxiv.tar.gz
+arxiv.tar.gz.~*~
+arxiv_stage/

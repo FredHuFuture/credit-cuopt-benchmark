@@ -1,0 +1,42 @@
+# timestamp_utc: 2026-08-24T12:11:16.305205+00:00
+# platform: Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43
+# python: 3.12.13
+# cpu_count_logical: 24
+# cvxpy: 1.9.2
+# cuopt: 26.6.0
+# cudf: 26.6.0
+# highspy: 1.15.1
+# ortools: 9.15.6755
+# numpy: 2.4.6
+# cpu_model: 13th Gen Intel(R) Core(TM) i7-13700F
+# gpu: NVIDIA GeForce RTX 4080, 16376 MiB, 595.95
+# ram_visible_gib: 6.8
+# wsl2: yes
+# gpu_util_pct_at_capture: 13
+# gpu_mem_used_mib_at_capture: 1977
+# gpu_contended: no
+# script: scripts/run_credit.py (M2 end-to-end credit run)
+# n_bonds: 500
+# n_scenarios: 20000
+# alpha: 0.95
+# risk_aversion: 3.0
+# turnover: 0.25
+# return_mode: excess
+# universe_seed: 7
+# scenario_seed: 11
+# oos_seed: 101
+# runs_per_config: 3
+# limits: issuer_cap=2.65%, w_max=3.23%, cell_dur_tol=+/-0.25y, total_dur=6.24+/-0.10y, DTS in [829, 1,013]bp-y, turnover=25% one-way
+# economics_reported_from: cuopt@1e-4+xover
+# economics_gate: purity
+# purity_gate_rel: 1e-06
+# desk_gate_bp_weight: 1
+# desk_gate_notional_usd: 1000000000
+# face_cvar_lp: True
+# scenario_gen_s: 0.113
+# scenario_device: GPU (CuPy)
+config,status,wall_s_median,wall_s_min,wall_s_max,objective,budget_resid,budget_signed,worst_rel_violation,worst_limit,purity_pass,purity_worst_rel,purity_worst_limit,desk_pass,desk_worst_multiple,desk_worst_limit,desk_worst_bp_weight,desk_worst_usd,n_purity_breaches,n_desk_breaches,gate_verdict
+cuopt@1e-4,optimal,2.308464527999945,2.25889793500005,2.3740108470000223,-0.05644049337098428,0.00010136460255627533,-0.00010136460255627533,0.04243453192230118,one-way turnover,False,0.04243453192230118,one-way turnover,False,106.08632980575294,one-way turnover,106.08632980575294,10608632.980575295,4,1,BREACH
+cuopt@1e-6,optimal,35.869664690000036,35.735320269,36.18562667600008,-0.056506181374492745,1.0848324683010446e-07,1.0848324683010446e-07,1.286303255021437e-06,3-7y contribution,False,1.286303255021437e-06,3-7y contribution,True,0.00011116104703390306,BBB,0.00011116104703390306,11.116104703390306,1,0,DESK-OK
+cuopt@1e-4+xover,optimal,21.10454130900007,21.011153022999906,22.57840522099991,-0.05650618095949229,0.0,0.0,5.2735593669694936e-15,total duration,True,5.2735593669694936e-15,total duration,True,1.6653345369377348e-12,BBB,1.6653345369377348e-12,1.6653345369377348e-07,0,0,OK
+highs-simplex,optimal,22.195062604999976,21.660266632000003,22.692729366000094,-0.05650618095949227,4.440892098500626e-16,-4.440892098500626e-16,5.2735593669694936e-15,total duration,True,5.2735593669694936e-15,total duration,True,1.3642420526593924e-12,DTS vs floor (bp-y),nan,nan,0,0,OK

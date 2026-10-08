@@ -1,0 +1,763 @@
+% =====================================================================
+% references.bib -- bond-cvar-cuopt
+%
+% VERIFICATION STATEMENT
+% Verified on 2026-08-23. Every entry below was confirmed against a
+% live source before it was written here: arXiv abstract pages
+% (arxiv.org/abs/<id>) for preprints, the Crossref REST API
+% (api.crossref.org/works/<doi>) for journal metadata, and the
+% publisher's own issue or repository page where a DOI does not exist
+% (Journal of Risk, Amundi Research Center, GitHub, NVIDIA developer
+% blog). No entry was written from memory and no identifier was
+% carried over unchecked from the literature scout's list.
+%
+% Two honest caveats, stated here rather than hidden:
+%   1. rockafellar2000cvar -- the Journal of Risk has no DOI for this
+%      article. Volume 2, Number 3 (Spring 2000) and the author list
+%      are confirmed on the publisher's own issue index at risk.net.
+%      The page range 21--41 comes from converging secondary indices
+%      (RePEc, Semantic Scholar), NOT from the publisher's page, which
+%      does not print page numbers. Treat 21--41 as high-confidence
+%      but publisher-unconfirmed.
+%   2. liu2026spiral is in INFORMS Journal on Computing "Articles in
+%      Advance" as of the verification date and therefore has no
+%      volume, issue or page range yet. Cite the DOI.
+%
+% KEY CONVENTION
+% lowercase first-author surname + 4-digit year + short lowercase
+% keyword. The year is the year in the entry's own `year` field, i.e.
+% the year of the version being cited: journal year for article-type,
+% arXiv/conference year for misc-type and (at)inproceedings. Where a work
+% exists both as a preprint and in a journal, the journal entry is
+% used and the `eprint` field is carried alongside it, so a single
+% \cite{} gives the reader both routes.
+%
+% Metadata corrections applied relative to the scout's claims (the
+% arXiv IDs themselves were all correct; these are journal-side fixes):
+%   - cuPDLP.jl: Operations Research 73(6):3440--3452 (2025), so the
+%     key is lu2025cupdlpjl.
+%   - HPR-LP: Mathematical Programming Computation 18(1):183--210,
+%     final volume year 2026 (online first 2025-10-06), so the key is
+%     chen2026hprlp, not chen2025hprlp.
+%   - Smart Crossover: INFORMS J. on Computing 37(6):1670--1688 (2025).
+%   - Spiral-dynamic crossover: IJOC Articles in Advance, 2026-04-06,
+%     not a 2025 issue.
+%   - PDHG-Net: the paper's actual title is "PDHG-Unrolled
+%     Learning-to-Optimize Method for Large-Scale Linear Programming"
+%     (ICML 2024); PDHG-Net is the name of the network inside it.
+% =====================================================================
+
+
+% ---------------------------------------------------------------------
+% A. GPU first-order LP canon
+% ---------------------------------------------------------------------
+
+@article{lu2025cupdlpjl,
+  author       = {Lu, Haihao and Yang, Jinwen},
+  title        = {{cuPDLP.jl}: A {GPU} Implementation of Restarted
+                  Primal-Dual Hybrid Gradient for Linear Programming in
+                  {Julia}},
+  journal      = {Operations Research},
+  volume       = {73},
+  number       = {6},
+  pages        = {3440--3452},
+  year         = {2025},
+  doi          = {10.1287/opre.2024.1069},
+  eprint       = {2311.12180},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC}
+}
+
+@misc{lu2023cupdlpc,
+  author       = {Lu, Haihao and Yang, Jinwen and Hu, Haodong and
+                  Huangfu, Qi and Liu, Jinsong and Liu, Tianhao and
+                  Ye, Yinyu and Zhang, Chuwen and Ge, Dongdong},
+  title        = {{cuPDLP-C}: A Strengthened Implementation of
+                  {cuPDLP} for Linear Programming by {C} Language},
+  year         = {2023},
+  eprint       = {2312.14832},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2312.14832},
+  url          = {https://arxiv.org/abs/2312.14832}
+}
+
+@misc{lu2025cupdlpx,
+  author       = {Lu, Haihao and Peng, Zedong and Yang, Jinwen},
+  title        = {{cuPDLPx}: A Further Enhanced {GPU}-Based First-Order
+                  Solver for Linear Programming},
+  year         = {2025},
+  eprint       = {2507.14051},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2507.14051},
+  url          = {https://arxiv.org/abs/2507.14051}
+}
+
+@article{chen2026hprlp,
+  author       = {Chen, Kaihuang and Sun, Defeng and Yuan, Yancheng and
+                  Zhang, Guojun and Zhao, Xinyuan},
+  title        = {{HPR-LP}: An Implementation of an {HPR} Method for
+                  Solving Linear Programming},
+  journal      = {Mathematical Programming Computation},
+  volume       = {18},
+  number       = {1},
+  pages        = {183--210},
+  year         = {2026},
+  doi          = {10.1007/s12532-025-00292-0},
+  eprint       = {2408.12179},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  note         = {Published online 6 October 2025}
+}
+
+@misc{lu2025overview,
+  author       = {Lu, Haihao and Yang, Jinwen},
+  title        = {An Overview of {GPU}-Based First-Order Methods for
+                  Linear Programming and Extensions},
+  year         = {2025},
+  eprint       = {2506.02174},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2506.02174},
+  url          = {https://arxiv.org/abs/2506.02174}
+}
+
+@misc{lu2024fom,
+  author       = {Lu, Haihao},
+  title        = {First-Order Methods for Linear Programming},
+  year         = {2024},
+  eprint       = {2403.14535},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2403.14535},
+  url          = {https://arxiv.org/abs/2403.14535}
+}
+
+@inproceedings{applegate2021pdlp,
+  author       = {Applegate, David and D{\'i}az, Mateo and
+                  Hinder, Oliver and Lu, Haihao and Lubin, Miles and
+                  O'Donoghue, Brendan and Schudy, Warren},
+  title        = {Practical Large-Scale Linear Programming Using
+                  Primal-Dual Hybrid Gradient},
+  booktitle    = {Advances in Neural Information Processing Systems 34
+                  (NeurIPS 2021)},
+  year         = {2021},
+  eprint       = {2106.04756},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  url          = {https://papers.nips.cc/paper/2021/hash/a8fbbd3b11424ce032ba813493d95ad7-Abstract.html}
+}
+
+@misc{chen2025relationships,
+  author       = {Chen, Kaihuang and Sun, Defeng and Yuan, Yancheng and
+                  Zhang, Guojun and Zhao, Xinyuan},
+  title        = {On the Relationships Among {GPU}-Accelerated
+                  First-Order Methods for Solving Linear Programming},
+  year         = {2025},
+  eprint       = {2509.23903},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2509.23903},
+  url          = {https://arxiv.org/abs/2509.23903}
+}
+
+
+% ---------------------------------------------------------------------
+% B. Crossover and PDHG accuracy. This is the literature that partially
+%    scoops the accuracy half of this paper's headline: it establishes
+%    independently that PDHG-class solvers return interior-ish,
+%    low-accuracy points and that recovering a vertex costs real time.
+% ---------------------------------------------------------------------
+
+@misc{rothberg2025crossover,
+  author       = {Rothberg, Edward},
+  title        = {Concurrent Crossover for {PDHG}},
+  year         = {2025},
+  eprint       = {2510.24429},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2510.24429},
+  url          = {https://arxiv.org/abs/2510.24429}
+}
+
+@misc{rothberg2025corner,
+  author       = {Rothberg, Edward},
+  title        = {Backing {PDHG} into a Corner},
+  year         = {2025},
+  eprint       = {2511.13894},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2511.13894},
+  url          = {https://arxiv.org/abs/2511.13894}
+}
+
+@misc{rothberg2026hybrid,
+  author       = {Rothberg, Edward},
+  title        = {Hybridizing {PDHG} and Interior-Point Methods},
+  year         = {2026},
+  eprint       = {2603.03150},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2603.03150},
+  url          = {https://arxiv.org/abs/2603.03150}
+}
+
+@article{ge2025crossover,
+  author       = {Ge, Dongdong and Wang, Chengwenjian and Xiong, Zikai
+                  and Ye, Yinyu},
+  title        = {From an Interior Point to a Corner Point: Smart
+                  Crossover},
+  journal      = {INFORMS Journal on Computing},
+  volume       = {37},
+  number       = {6},
+  pages        = {1670--1688},
+  year         = {2025},
+  doi          = {10.1287/ijoc.2022.0291},
+  eprint       = {2102.09420},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC}
+}
+
+@article{liu2026spiral,
+  author       = {Liu, Tianhao and Lu, Haihao},
+  title        = {A New Crossover Algorithm for {LP} Inspired by the
+                  Spiral Dynamic of {PDHG}},
+  journal      = {INFORMS Journal on Computing},
+  year         = {2026},
+  doi          = {10.1287/ijoc.2024.0996},
+  eprint       = {2409.14715},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  note         = {Articles in Advance, published online 6 April 2026;
+                  no volume, issue or page range assigned as of
+                  2026-08-23}
+}
+
+
+% ---------------------------------------------------------------------
+% C. The direct rebuttal to the accuracy headline. Feasibility
+%    polishing is the PDLP team's own answer to "first-order methods
+%    cannot deliver a usable solution", and it must be addressed rather
+%    than ignored.
+% ---------------------------------------------------------------------
+
+@misc{applegate2025pdlp,
+  author       = {Applegate, David and D{\'i}az, Mateo and
+                  Hinder, Oliver and Lu, Haihao and Lubin, Miles and
+                  O'Donoghue, Brendan and Schudy, Warren},
+  title        = {{PDLP}: A Practical First-Order Method for
+                  Large-Scale Linear Programming},
+  year         = {2025},
+  eprint       = {2501.07018},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2501.07018},
+  url          = {https://arxiv.org/abs/2501.07018},
+  note         = {Journal version of the NeurIPS 2021 paper;
+                  introduces feasibility polishing. Last revised
+                  18 March 2026}
+}
+
+
+% ---------------------------------------------------------------------
+% D. Conic geometry, tracking-error lineage and robust-statistics
+%    mechanism. These references prevent the paper from presenting
+%    textbook geometry or the L1/L2 jump distinction as discoveries.
+% ---------------------------------------------------------------------
+
+@article{bental2001soc,
+  author       = {Ben-Tal, Aharon and Nemirovski, Arkadi},
+  title        = {On Polyhedral Approximations of the Second-Order Cone},
+  journal      = {Mathematics of Operations Research},
+  volume       = {26},
+  number       = {2},
+  pages        = {193--205},
+  year         = {2001},
+  doi          = {10.1287/moor.26.2.193.10561}
+}
+
+@article{vielma2008lifted,
+  author       = {Vielma, Juan Pablo and Ahmed, Shabbir and
+                  Nemhauser, George L.},
+  title        = {A Lifted Linear Programming Branch-and-Bound
+                  Algorithm for Mixed-Integer Conic Quadratic Programs},
+  journal      = {INFORMS Journal on Computing},
+  volume       = {20},
+  number       = {3},
+  pages        = {438--450},
+  year         = {2008},
+  doi          = {10.1287/ijoc.1070.0256}
+}
+
+@article{perold1984large,
+  author       = {Perold, Andr{\'e} F.},
+  title        = {Large-Scale Portfolio Optimization},
+  journal      = {Management Science},
+  volume       = {30},
+  number       = {10},
+  pages        = {1143--1160},
+  year         = {1984},
+  doi          = {10.1287/mnsc.30.10.1143}
+}
+
+@article{jorion2003tracking,
+  author       = {Jorion, Philippe},
+  title        = {Portfolio Optimization with Tracking-Error Constraints},
+  journal      = {Financial Analysts Journal},
+  volume       = {59},
+  number       = {5},
+  pages        = {70--82},
+  year         = {2003},
+  doi          = {10.2469/faj.v59.n5.2565}
+}
+
+@article{geary1935ratio,
+  author       = {Geary, R. C.},
+  title        = {The Ratio of the Mean Deviation to the Standard
+                  Deviation as a Test of Normality},
+  journal      = {Biometrika},
+  volume       = {27},
+  number       = {3--4},
+  pages        = {310--332},
+  year         = {1935},
+  doi          = {10.1093/biomet/27.3-4.310}
+}
+
+@article{barndorff2004bipower,
+  author       = {Barndorff-Nielsen, Ole E. and Shephard, Neil},
+  title        = {Power and Bipower Variation with Stochastic
+                  Volatility and Jumps},
+  journal      = {Journal of Financial Econometrics},
+  volume       = {2},
+  number       = {1},
+  pages        = {1--37},
+  year         = {2004},
+  doi          = {10.1093/jjfinec/nbh001}
+}
+
+@misc{chen2024cuclarabel,
+  author       = {Chen, Yuwen and Tse, Danny and Nobel, Parth and
+                  Goulart, Paul and Boyd, Stephen},
+  title        = {{CuClarabel}: {GPU} Acceleration for a Conic
+                  Optimization Solver},
+  year         = {2024},
+  eprint       = {2412.19027},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2412.19027},
+  url          = {https://arxiv.org/abs/2412.19027}
+}
+
+
+% ---------------------------------------------------------------------
+% E. Adjacent GPU portfolio work. This marks the competitive window:
+%    both appeared in 2026 and both are GPU portfolio optimizers, so
+%    the contribution has to be stated against them, not around them.
+% ---------------------------------------------------------------------
+
+@misc{jiang2026flashfolio,
+  author       = {Jiang, Yilun and Lu, Haihao and Peng, Zedong and
+                  Yang, Jinwen},
+  title        = {{FlashFolio}: A {GPU}-Accelerated Solver for
+                  Portfolio Optimization},
+  year         = {2026},
+  eprint       = {2604.22625},
+  archivePrefix = {arXiv},
+  primaryClass = {q-fin.PM},
+  doi          = {10.48550/arXiv.2604.22625},
+  url          = {https://arxiv.org/abs/2604.22625}
+}
+
+@misc{ghosh2026prism,
+  author       = {Ghosh, Debdoot},
+  title        = {Asymmetry {PRISM}: A {CPU/GPU} Portfolio Optimization
+                  Engine for Deadline-Bounded Institutional
+                  Rebalancing},
+  year         = {2026},
+  eprint       = {2606.23367},
+  archivePrefix = {arXiv},
+  primaryClass = {q-fin.PM},
+  doi          = {10.48550/arXiv.2606.23367},
+  url          = {https://arxiv.org/abs/2606.23367}
+}
+
+
+% ---------------------------------------------------------------------
+% E. Presolve and warm starting for GPU first-order LP. Relevant
+%    because presolve time is inside the wall-clock number this paper
+%    reports, and PSLP is already vendored into cuOpt.
+% ---------------------------------------------------------------------
+
+@misc{cederberg2026presolve,
+  author       = {Cederberg, Daniel and Boyd, Stephen},
+  title        = {Presolving for {GPU}-Accelerated First-Order {LP}
+                  Solvers},
+  year         = {2026},
+  eprint       = {2604.23951},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2604.23951},
+  url          = {https://arxiv.org/abs/2604.23951}
+}
+
+@inproceedings{li2024pdhgnet,
+  author       = {Li, Bingheng and Yang, Linxin and Chen, Yupeng and
+                  Wang, Senmiao and Chen, Qian and Mao, Haitao and
+                  Ma, Yao and Wang, Akang and Ding, Tian and
+                  Tang, Jiliang and Sun, Ruoyu},
+  title        = {{PDHG}-Unrolled Learning-to-Optimize Method for
+                  Large-Scale Linear Programming},
+  booktitle    = {Proceedings of the 41st International Conference on
+                  Machine Learning (ICML 2024)},
+  year         = {2024},
+  eprint       = {2406.01908},
+  archivePrefix = {arXiv},
+  primaryClass = {cs.LG},
+  doi          = {10.48550/arXiv.2406.01908}
+}
+
+
+% ---------------------------------------------------------------------
+% F. MAD and tracking-error surrogate lineage. This is the lineage the
+%    M6 result sits in: an L1 surrogate is chosen over an L2 risk
+%    measure precisely to keep the program linear, and the surrogate
+%    then under-delivers the L2 mandate.
+% ---------------------------------------------------------------------
+
+@article{konno1991mad,
+  author       = {Konno, Hiroshi and Yamazaki, Hiroaki},
+  title        = {Mean-Absolute Deviation Portfolio Optimization Model
+                  and Its Applications to {Tokyo} Stock Market},
+  journal      = {Management Science},
+  volume       = {37},
+  number       = {5},
+  pages        = {519--531},
+  year         = {1991},
+  doi          = {10.1287/mnsc.37.5.519}
+}
+
+@article{rudolf1999tracking,
+  author       = {Rudolf, Markus and Wolter, Hans-J{\"u}rgen and
+                  Zimmermann, Heinz},
+  title        = {A Linear Model for Tracking Error Minimization},
+  journal      = {Journal of Banking \& Finance},
+  volume       = {23},
+  number       = {1},
+  pages        = {85--103},
+  year         = {1999},
+  doi          = {10.1016/S0378-4266(98)00076-4}
+}
+
+@article{sharpe1971lp,
+  author       = {Sharpe, William F.},
+  title        = {A Linear Programming Approximation for the General
+                  Portfolio Analysis Problem},
+  journal      = {The Journal of Financial and Quantitative Analysis},
+  volume       = {6},
+  number       = {5},
+  pages        = {1263--1275},
+  year         = {1971},
+  doi          = {10.2307/2329860}
+}
+
+
+% ---------------------------------------------------------------------
+% G. Already in the repo's reference list; details re-checked here.
+% ---------------------------------------------------------------------
+
+@article{rockafellar2000cvar,
+  author       = {Rockafellar, R. Tyrrell and Uryasev, Stanislav},
+  title        = {Optimization of Conditional Value-at-Risk},
+  journal      = {Journal of Risk},
+  volume       = {2},
+  number       = {3},
+  pages        = {21--41},
+  year         = {2000},
+  url          = {https://www.risk.net/journal-of-risk/volume-2-number-3-spring-2000}
+}
+
+@article{andersson2001credit,
+  author       = {Andersson, Fredrik and Mausser, Helmut and
+                  Rosen, Dan and Uryasev, Stanislav},
+  title        = {Credit Risk Optimization with Conditional
+                  Value-at-Risk Criterion},
+  journal      = {Mathematical Programming},
+  volume       = {89},
+  number       = {2},
+  pages        = {273--291},
+  year         = {2001},
+  doi          = {10.1007/PL00011399}
+}
+
+@article{bendor2007dts,
+  author       = {Ben Dor, Arik and Dynkin, Lev and Hyman, Jay and
+                  Houweling, Patrick and van Leeuwen, Erik and
+                  Penninga, Olaf},
+  title        = {{DTS} (Duration Times Spread)},
+  journal      = {The Journal of Portfolio Management},
+  volume       = {33},
+  number       = {2},
+  pages        = {77--100},
+  year         = {2007},
+  doi          = {10.3905/jpm.2007.674795}
+}
+
+@article{beiranvand2017benchmarking,
+  author       = {Beiranvand, Vahid and Hare, Warren and Lucet, Yves},
+  title        = {Best Practices for Comparing Optimization
+                  Algorithms},
+  journal      = {Optimization and Engineering},
+  volume       = {18},
+  number       = {4},
+  pages        = {815--848},
+  year         = {2017},
+  doi          = {10.1007/s11081-017-9366-1},
+  eprint       = {1709.08242},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC}
+}
+
+@misc{luxenberg2025cvqp,
+  author       = {Luxenberg, Eric and P{\'e}rez-Pi{\~n}eiro, David and
+                  Diamond, Steven and Boyd, Stephen},
+  title        = {An Operator Splitting Method for Large-Scale
+                  {CVaR}-Constrained Quadratic Programs},
+  year         = {2025},
+  eprint       = {2504.10814},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2504.10814},
+  url          = {https://arxiv.org/abs/2504.10814},
+  note         = {Software package CVQP. Last revised 13 April 2026;
+                  no journal reference as of 2026-08-23}
+}
+
+
+% ---------------------------------------------------------------------
+% H. Found by independent search, not on the scout's list. These are
+%    the 2025--2026 items a referee would expect to see, plus the
+%    "large-universe covariance QP is intractable" position that the
+%    QP branch (M7) has to argue against.
+% ---------------------------------------------------------------------
+
+@misc{niu2026meanvariance,
+  author       = {Niu, Yi-Shuai and Wang, Yajuan},
+  title        = {Scalable Mean-Variance Portfolio Optimization via
+                  Subspace Embeddings and {GPU}-Friendly
+                  Nesterov-Accelerated Projected Gradient},
+  year         = {2026},
+  eprint       = {2604.02917},
+  archivePrefix = {arXiv},
+  primaryClass = {q-fin.PM},
+  doi          = {10.48550/arXiv.2604.02917},
+  url          = {https://arxiv.org/abs/2604.02917}
+}
+
+@misc{li2026dpdlp,
+  author       = {Li, Hongpei and Huang, Yicheng and Liu, Huikang and
+                  Ge, Dongdong and Ye, Yinyu},
+  title        = {{D-PDLP}: Scaling {PDLP} to Distributed Multi-{GPU}
+                  Systems},
+  year         = {2026},
+  eprint       = {2601.07628},
+  archivePrefix = {arXiv},
+  primaryClass = {math.OC},
+  doi          = {10.48550/arXiv.2601.07628},
+  url          = {https://arxiv.org/abs/2601.07628}
+}
+
+@misc{hu2026cvarconstraints,
+  author       = {Hu, Anran and Pesenti, Silvana M. and Shi, Xiaofei},
+  title        = {Dynamic Portfolio Optimization Under {CVaR}
+                  Constraints},
+  year         = {2026},
+  eprint       = {2608.20179},
+  archivePrefix = {arXiv},
+  primaryClass = {q-fin.PM},
+  doi          = {10.48550/arXiv.2608.20179},
+  url          = {https://arxiv.org/abs/2608.20179},
+  note         = {Continuous-time, CPU only; included because it is
+                  the most recent CVaR-constrained allocation paper
+                  and shows the non-GPU branch of the same problem}
+}
+
+@misc{huo2025cuoptcvar,
+  author       = {Huo, Peihan and Huang, Flora and Boier, Ioana},
+  title        = {Accelerating Real-Time Financial Decisions with
+                  Quantitative Portfolio Optimization},
+  howpublished = {NVIDIA Technical Blog},
+  year         = {2025},
+  month        = dec,
+  url          = {https://developer.nvidia.com/blog/accelerating-real-time-financial-decisions-with-quantitative-portfolio-optimization/},
+  note         = {Published 2 December 2025. Scenario-based Mean-CVaR
+                  via the Rockafellar-Uryasev linearization solved with
+                  the cuOpt PDLP LP solver; claims 45.8x--167.4x
+                  speedup over a CPU solver. This is the vendor
+                  benchmark this work is positioned against}
+}
+
+@misc{nvidia2026cufolio,
+  author       = {{NVIDIA}},
+  title        = {{NVIDIA} {AI} Blueprint: Portfolio Optimization
+                  (cuFOLIO)},
+  howpublished = {GitHub repository, Apache-2.0},
+  year         = {2026},
+  url          = {https://github.com/NVIDIA-AI-Blueprints/portfolio-optimization}
+}
+
+@misc{perrin2019mlopt,
+  author       = {Perrin, Sarah and Roncalli, Thierry},
+  title        = {Machine Learning Optimization Algorithms \&
+                  Portfolio Allocation},
+  year         = {2019},
+  eprint       = {1909.10233},
+  archivePrefix = {arXiv},
+  primaryClass = {q-fin.PM},
+  doi          = {10.48550/arXiv.1909.10233},
+  url          = {https://arxiv.org/abs/1909.10233},
+  note         = {Also published as Chapter 8 of
+                  \emph{Machine Learning for Asset Management},
+                  Wiley, 2020. The abstract's claim is that standard
+                  portfolio models ``are unable to manage a universe
+                  with dozens or hundreds of assets''}
+}
+
+@techreport{benslimane2026bond,
+  author       = {Ben Slimane, Mohamed and Cherief, Amina and
+                  Roncalli, Thierry and Xu, Jiali},
+  title        = {Bond Portfolio Optimization},
+  institution  = {Amundi Investment Institute},
+  type         = {Working Paper},
+  year         = {2026},
+  month        = jul,
+  url          = {https://research-center.amundi.com/article/bond-portfolio-optimization}
+}
+
+@techreport{benslimane2023bondmip,
+  author       = {Ben Slimane, Mohamed and Menchaoui, Ghassen},
+  title        = {Bond Portfolio Optimisation and Mixed Integer
+                  Programming},
+  institution  = {Amundi Investment Institute},
+  type         = {Working Paper},
+  number       = {152},
+  year         = {2023},
+  month        = dec,
+  url          = {https://research-center.amundi.com/article/bond-portfolio-optimisation-and-mixed-integer-programming},
+  note         = {Published 20 December 2023}
+}
+
+
+% ---------------------------------------------------------------------
+% H. Empirical tail behaviour of corporate-bond returns, and the role
+%    of jump-to-default in it (added 2026-08-24 for M9).
+%
+% Every entry below was verified on 2026-08-24 against the Crossref
+% REST API (api.crossref.org/works/<doi>) except amato2003spread, which
+% has no DOI and was verified by reading the publisher PDF at bis.org
+% (author line, title and the page footers giving 51 and 63).
+%
+% READ THIS BEFORE CITING bai2016distributional. It is the only source
+% found that prints LEVELS of excess kurtosis for individual corporate
+% bonds, and it is a working paper by authors whose closely related
+% published paper -- Bai, Bali and Wen, JFE 131(3):619--642 (2019),
+% built on the same return dataset -- was RETRACTED in 2023 over data
+% construction errors (bai2023retraction), following the replication
+% work in dickerson2023priced. The qualitative finding (individual
+% corporate bond monthly returns are strongly leptokurtic; normality is
+% rejected for most bonds) is not in dispute and is corroborated
+% elsewhere. The numeric quintile levels should be quoted as
+% indicative and attributed, never as a settled empirical constant.
+% ---------------------------------------------------------------------
+
+@article{amato2003spread,
+  author       = {Amato, Jeffery D. and Remolona, Eli M.},
+  title        = {The Credit Spread Puzzle},
+  journal      = {BIS Quarterly Review},
+  pages        = {51--63},
+  year         = {2003},
+  month        = dec,
+  url          = {https://www.bis.org/publ/qtrpdf/r_qt0312e.pdf},
+  note         = {No DOI. Argues that default risk makes corporate
+                  bond returns highly negatively skewed, that removing
+                  the resulting unexpected losses would need an
+                  extraordinarily large portfolio, and that real
+                  portfolios (evidenced by arbitrage CDO collateral
+                  pools) do not reach that size}
+}
+
+@article{driessen2005default,
+  author       = {Driessen, Joost},
+  title        = {Is Default Event Risk Priced in Corporate Bonds?},
+  journal      = {The Review of Financial Studies},
+  volume       = {18},
+  number       = {1},
+  pages        = {165--195},
+  year         = {2005},
+  doi          = {10.1093/rfs/hhi009}
+}
+
+@article{chen2022jump,
+  author       = {Chen, Xi and Wang, Junbo and Wu, Chunchi},
+  title        = {Jump and Volatility Risk in the Cross-Section of
+                  Corporate Bond Returns},
+  journal      = {Journal of Financial Markets},
+  volume       = {60},
+  pages        = {100733},
+  year         = {2022},
+  doi          = {10.1016/j.finmar.2022.100733}
+}
+
+@article{clark2018spreads,
+  author       = {Clark, Ephraim and Baccar, Selima},
+  title        = {Modelling Credit Spreads with Time Volatility,
+                  Skewness, and Kurtosis},
+  journal      = {Annals of Operations Research},
+  volume       = {262},
+  number       = {2},
+  pages        = {431--461},
+  year         = {2018},
+  doi          = {10.1007/s10479-015-1975-5},
+  note         = {Online first 2015; the volume year is 2018}
+}
+
+@misc{bai2016distributional,
+  author       = {Bai, Jennie and Bali, Turan G. and Wen, Quan},
+  title        = {Do the Distributional Characteristics of Corporate
+                  Bonds Predict Their Future Returns?},
+  year         = {2016},
+  month        = mar,
+  howpublished = {SSRN Working Paper 2548562},
+  doi          = {10.2139/ssrn.2548562},
+  note         = {Version read is dated March 2016 on its own title
+                  page; the Crossref record for the SSRN DOI carries
+                  2015, the year of first posting. See the caveat at
+                  the head of section H: the authors' related JFE
+                  paper on the same dataset was retracted}
+}
+
+@article{dickerson2023priced,
+  author       = {Dickerson, Alexander and Mueller, Philippe and
+                  Robotti, Cesare},
+  title        = {Priced Risk in Corporate Bonds},
+  journal      = {Journal of Financial Economics},
+  volume       = {150},
+  number       = {2},
+  pages        = {103707},
+  year         = {2023},
+  doi          = {10.1016/j.jfineco.2023.103707}
+}
+
+@article{bai2023retraction,
+  author       = {Bai, Jennie and Bali, Turan G. and Wen, Quan},
+  title        = {Retraction Notice to ``Common Risk Factors in the
+                  Cross-Section of Corporate Bond Returns''
+                  [{Journal of Financial Economics} 131 (3) (2019)
+                  619--642]},
+  journal      = {Journal of Financial Economics},
+  volume       = {150},
+  number       = {3},
+  pages        = {103721},
+  year         = {2023},
+  doi          = {10.1016/j.jfineco.2023.103721}
+}

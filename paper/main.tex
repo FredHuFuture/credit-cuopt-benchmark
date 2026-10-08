@@ -1,0 +1,644 @@
+% All reported measurements are generated from committed CSVs by
+% scripts/make_paper_numbers.py. Add a macro there; never type a result here.
+\documentclass[11pt,a4paper]{article}
+\PassOptionsToPackage{hyphens}{url}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,array,booktabs,graphicx,xcolor,natbib}
+\usepackage[hidelinks]{hyperref}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\graphicspath{{../results/}{./}}
+\bibliographystyle{plainnat}
+\input{numbers}
+
+\newcommand{\MaybeFigure}[2]{%
+  \IfFileExists{../results/#1}{\includegraphics[width=\linewidth]{#1}}{%
+  \IfFileExists{#1}{\includegraphics[width=\linewidth]{#1}}{%
+  \fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{%
+  \centering\small [figure \texttt{#1} unavailable: #2]}}}}}
+
+\title{Credit Portfolio Optimization with cuOpt:\\
+       A Reproducible Benchmark of Risk, Constraints, and Solver Endpoints}
+\author{Fred Hu\thanks{Correspondence: \texttt{fred.qian.hu@gmail.com}. Artifacts:
+\url{https://github.com/FredHuFuture/credit-cuopt-benchmark}.}}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study NVIDIA cuOpt for continuous corporate-bond portfolio construction
+under spread and default risk, rating and issuer limits, duration matching,
+duration-times-spread bounds, and turnover constraints. The contribution is
+an open application benchmark, not a new optimization algorithm. We compare
+four endpoints: a raw first-order point, a feasibility-repaired point, a basic
+solution, and a directly modeled conic solution. A central case is a
+standard-deviation tracking-error target. A Gaussian-calibrated
+mean-absolute-deviation (MAD) proxy set to the same nominal budget delivers
+\PZeroNaiveMadSigmaBp\,bp against a ten-basis-point target, an overshoot of
+\PZeroNaiveMadOvershoot$\times$. Recalibration is possible: a
+\PZeroSelectedMadBudgetBp\,bp MAD budget delivers
+\PZeroSelectedMadSigmaBp\,bp in-model and remains below target on
+\PZeroValidationDrawCount{} fixed validation draws. It requires a
+\PZeroSelectedMadHaircut$\times$ nominal haircut, reduces the scaled objective
+by \PZeroSelectedMadObjectiveLossBp\,bp, and increases CVaR loss by
+\PZeroSelectedMadCvarCostBp\,bp relative to the exact SOCP portfolio.
+Thus the defect is not unavailability of the mandate but failure of naive
+calibration, with an observable cost--accuracy trade-off.
+
+Both conic solvers deliver the reference-size sigma mandate; working-size
+Clarabel remains feasible while the native cuOpt path records a crash.
+Contended SOCP timings are excluded. On the MAD-form LP, tight raw PDLP passes
+the proxy's numerical constraints without crossover, but this is not sigma
+compliance. A paired turnover leave-one-out and a matched-feasibility QP
+comparison show that constraint structure, representation, and solver endpoint
+matter alongside device choice. Results use a controlled credit scenario
+generator, not an empirical asset-pricing test or an executable bond-trading
+system. Reported measurements are generated from archived result files.
+\end{abstract}
+
+\section{Introduction}
+
+Scenario Mean-CVaR is attractive for credit because it represents asymmetric
+spread widening and default losses directly, and because its finite-scenario
+form is a linear program (LP)~\citep{rockafellar2000cvar}. The dense scenario
+block is also a natural target for GPU first-order methods. That observation,
+however, is only the beginning of a portfolio benchmark. Institutional
+portfolios are judged on the final mandate, not on the objective value returned
+by a solver at its native stopping tolerance.
+
+Credit is not merely a new asset label on an equity example. Spread shocks
+scale with spread level, multiple bonds share one issuer's default event, and
+duration and DTS limits prevent a tail-risk optimizer from obtaining an
+apparent improvement by abandoning the benchmark's risk exposures.
+Scenario CVaR in credit is established~\citep{andersson2001credit}, as is
+DTS-based risk measurement~\citep{bendor2007dts}. Our question is how a
+cuOpt-based implementation behaves when these features are present together.
+
+Three distinctions are easy to erase in a speed table. First, a sigma
+tracking-error limit is a second-order cone (SOC), whereas its common MAD proxy
+is an LP constraint. Second, an approximate first-order point, a repaired
+continuous point, a basic solution, and an exact conic point are different
+endpoints. Third, dense and factorized covariance representations change the
+computational structure and memory footprint without changing the QP being
+solved. This
+paper makes those distinctions explicit and refuses a timing ratio whenever
+the compared rows do not reach the same endpoint and quality target.
+
+The contribution is an experimental application benchmark rather than a claim
+to new cone geometry or new credit-risk theory. The
+SOC form of tracking error is standard~\citep{jorion2003tracking}; MAD portfolio
+models are classical~\citep{konno1991mad}; the ratio between absolute and
+quadratic dispersion goes back to \citet{geary1935ratio}; and lifted
+polyhedral approximations can enforce a cone conservatively with LP
+machinery~\citep{bental2001soc,vielma2008lifted}. What is less often measured is
+what happens after a portfolio optimizer is allowed to select into the proxy's
+blind spot, how much recalibration costs, and whether solver speed survives an
+independent mandate checker.
+
+Our findings are fourfold.
+\begin{enumerate}
+\item Naive MAD calibration materially misses a sigma mandate. Recalibration
+      restores delivery, but at a measurable CVaR and objective cost.
+\item A tight raw first-order point satisfies the MAD-form LP without
+      crossover. That proxy compliance must not be mistaken for delivery of
+      the original sigma mandate.
+\item Turnover is an important contributor to crossover cost, not its sole
+      cause, according to a paired leave-one-out experiment.
+\item Matched-feasibility QP results depend jointly on representation, solver
+      stack, endpoint, and size. Rows repaired on CPU and raw on GPU are
+      reported separately and never converted into a speed ratio.
+\end{enumerate}
+
+The scope is a continuous relaxation. Bond lots, minimum trade sizes,
+cardinality, transaction-cost schedules, and operational pre-trade checks are
+important but remain a separate mixed-integer implementation layer, as in
+institutional bond-optimization work~\citep{benslimane2023bondmip}.
+
+\section{Model and mandate}
+
+Let $w\in\mathbb{R}^N$ be portfolio weights, $w^0$ the incumbent, and
+$R\in\mathbb{R}^{S\times N}$ scenario returns. With loss
+$\ell_s(w)=-R_s w$, empirical CVaR at level $\alpha$ is represented by
+\begin{equation}
+ \operatorname{CVaR}_{\alpha}(w)=
+ \min_{t,u}\left\{t+\frac{1}{(1-\alpha)S}\sum_s u_s:
+ u_s\geq \ell_s(w)-t,\ u_s\geq0\right\}.
+\end{equation}
+The CVaR experiments maximize
+\begin{equation}
+ J(w)=\mu^\top w-\lambda\operatorname{CVaR}_{\alpha}(w),
+ \qquad \alpha=0.95,\quad\lambda=3,
+\end{equation}
+subject to full investment, long-only name bounds, and the credit mandate.
+$R$ and $\mu$ are monthly excess returns over a duration-matched Treasury
+leg; $\mu$ is the generator's carry, convexity, and expected-default-loss
+estimate, not a fitted alpha forecast. Turnover is a constraint,
+$\frac12\lVert w-w^0\rVert_1\leq0.25$, not an objective penalty in these
+experiments. Expected excess return and CVaR are reported in monthly basis
+points; a ``scaled objective'' difference means $10^4\Delta J$, not an
+observed return or a separate economic risk measure.
+
+The credit limit sheet includes rating bands, sector and issuer
+caps, cell and aggregate duration matching, duration-times-spread bounds, a
+turnover budget, full investment, and name bounds. The artifact independently
+recomputes every family from the returned weights. In the default mandate,
+each rating bucket has a lower bound equal to its benchmark weight minus the
+smaller of 0.10 and half that weight, and an upper bound 0.10 above benchmark
+(clipped to one). Sector caps are benchmark plus 0.05. A common issuer cap is
+the larger of 0.01 and 1.5 times the largest benchmark issuer weight; the name
+cap is the larger of 0.005 and three times the largest benchmark name weight.
+Aggregate duration stays within 0.10 years of benchmark, with 0.25-year
+cell-duration bands, and DTS lies between 0.9 and 1.1 times benchmark DTS.
+These are benchmark design choices, not universal desk standards.
+
+For active weights $x=w-w^b$, let $A$ be the column-centered monthly scenario
+matrix. The modeled annualized sigma tracking-error mandate is
+\begin{equation}
+  \sqrt{12/S}\,\lVert Ax\rVert_2\leq \tau,
+  \qquad \Sigma_{\mathrm{ann}}=12A^\top A/S.
+\end{equation}
+This is an SOC constraint; the empirical variance uses divisor $S$, not
+$S-1$. Budgets quoted in basis points are converted to return units before
+optimization. The LP proxy replaces
+quadratic dispersion by scaled sample MAD,
+\begin{equation}
+ \sqrt{12}\sqrt{\pi/2}\;S^{-1}\sum_s |(Ax)_s|\leq\tau.
+\end{equation}
+The Gaussian scaling is exact in population for a centered normal scalar;
+it is not a finite-sample identity or a characterization of normality. It is neither
+an inner nor an outer approximation for a general credit-return distribution.
+Conservatively scaled polyhedral cone approximations provide another LP
+route~\citep{bental2001soc}; we do not benchmark that alternative. Our MAD arm
+tests a simple Gaussian-calibrated LP proxy, not a claim that desks universally
+use this calibration.
+
+\section{Experimental design}
+
+\subsection{Data and scenario model}
+
+The working problem has \MSixBonds{} synthetic bonds and
+\MSixScenarios{} monthly scenarios, with universe seed 7 and scenario seed 11.
+The main comparisons hold the universe, scenario seed, mandate, and objective
+fixed. Scenarios combine correlated Student-$t$ spread factors, idiosyncratic
+variation, asymmetric widening, and issuer-level jump-to-default. Spread
+changes are proportional to initial spread; all bonds of an issuer share a
+default event. Expected excess returns include spread carry and expected
+default losses. The return approximation omits some pricing effects, including
+the rate--spread convexity cross term. This is a controlled benchmark
+generator, not an estimated production risk model.
+Appendix~\ref{app:generator} specifies the operating parameters, benchmark,
+incumbent, and maturity-cell constraints.
+
+An optional SEC Form N-PORT pipeline supplies real holdings-derived security
+characteristics, with spread-implied ratings and proxy sectors explicitly
+labeled. It is an artifact extension, not the input to the main comparisons
+and not evidence of real-market portfolio performance. Result filenames use
+the internal prefix \texttt{p0\_} for the corrected experiment series.
+
+The jump experiment is descriptive mechanism evidence. It connects naturally
+to robust dispersion diagnostics~\citep{geary1935ratio} and to the distinction
+between continuous variation and jumps in bipower variation
+\citep{barndorff2004bipower}. We do not call the four-cell contrast a variance
+decomposition or infer a structural causal share from it.
+
+\subsection{Endpoints and independent gates}
+
+Each row names a method class and endpoint:
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+Endpoint & Construction & Interpretation\\
+\midrule
+raw & solver return & approximate continuous point\\
+repaired & minimum-distance LP repair & continuous feasible point\\
+basic & crossover or simplex & basic feasible point\\
+exact-conic & SOCP barrier & sigma mandate represented directly\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The checker recomputes objective, expected excess return, CVaR, sigma TE, MAD
+TE, bounds, and every mandate family from weights rather than trusting solver
+metadata. A public timing ratio requires convergence, checker success, mandate
+purity, objective consistency, and the same formulation and endpoint.
+The purity gate allows at most $10^{-6}$ of each constraint's characteristic
+scale, as defined in \path{src/credit.py}. The separate illustrative desk gate
+allows 1bp of portfolio weight, 0.005 years of duration, 0.5 bp-years of DTS,
+or 0.05bp annualized TE, depending on the quantity. It is not a claim of
+industry acceptance. Legacy \texttt{respects\_mandate} fields in the TE
+runner use a looser $10^{-3}$ relative threshold; publication decisions use
+\texttt{purity\_pass} and the independently recomputed sigma target instead.
+In a MAD row, purity checks the MAD constraint, not an additional sigma cap.
+QP ratios match feasibility and objective-recomputation gates, not certified
+identical distance to the mathematical optimum; objective gaps are disclosed
+separately. DNF, native error, out-of-memory, and harness memory refusal are
+recorded outcomes, not silently dropped cells.
+
+\subsection{Timing discipline}
+
+Measurements were collected in August 2026 on an \EnvCpu{} CPU and an
+\EnvGpu{} GPU (\EnvGpuMemory), under WSL2. The software stack uses Python
+\EnvPython, CVXPY \EnvCvxpy, cuOpt \EnvCuopt, Clarabel 0.11.1, and HiGHS
+\EnvHighs; the archived WSL environment reports 6.8GiB of visible RAM.
+\path{requirements.lock} preserves the measured package versions.
+
+Build, first solve, steady-state median, repair, and total endpoint time are
+separate fields. Runs capture GPU utilization, memory, and process context. The
+reference-size SOCP file explicitly flags GPU contention. The working-size
+Clarabel SOCP repeats also ran with foreground workload and swap pressure.
+Both files support feasibility only: no SOCP speed ratio is published.
+The earlier draft's reference-size ratio has been withdrawn. Other reported
+timings have clean file-level capture flags, which are snapshots rather than
+proof of continuous system idleness. Runs generally comprise three repeats;
+repair and leave-one-out use five. Failed cells are retained. The TE runner
+stops after its first failed attempt, but the archived endpoint-ladder HiGHS
+simplex arm includes three timed capped runs; the no-repeat policy was not
+uniformly implemented. The artifact distinguishes
+within-process steady-state repeats from process-isolated experiments; these
+timings are descriptive workstation measurements, not confidence intervals.
+
+\section{Exact SOCP and MAD recalibration}
+
+\subsection{Native conic validation}
+
+At reference size, both conic stacks deliver the target independently:
+\begin{center}
+\begin{tabular}{lr}
+\toprule
+Stack & achieved sigma TE (bp)\\
+\midrule
+cuOpt barrier & \PZeroSocpRefCuoptTeBp\\
+Clarabel & \PZeroSocpRefClarabelTeBp\\
+\bottomrule
+\end{tabular}
+\end{center}
+This validates native cuOpt conic feasibility on the 300-bond,
+3,000-scenario reference problem, not relative speed. ``Exact'' here means
+the sigma constraint is represented directly; the solver still uses numerical
+tolerances.
+
+At working size, Clarabel still returns a portfolio with
+\PZeroSocpWorkingClarabelTeBp\,bp sigma TE and expected excess return of
+\PZeroSocpWorkingClarabelExpectedExcessBp\,bp per month. The cuOpt barrier path
+records \texttt{\PZeroSocpWorkingCuoptStatus} in the native sparse factorization
+path. We ran that failure once, retained the status, and did not convert it into
+a fictitious lower-bound timing. Conversely, we exclude the contaminated
+Clarabel repeats from speed claims. The working-size evidence therefore answers
+feasibility, not comparative timing.
+
+\subsection{Naive versus recalibrated MAD}
+
+\begin{center}
+\small
+\begin{tabular}{lrrL{3.0cm}}
+\toprule
+Method & budget (bp) & sigma TE (bp) & interpretation\\
+\midrule
+naive MAD & \MSixMadTenBudgetBp & \PZeroNaiveMadSigmaBp &
+\PZeroNaiveMadOvershoot$\times$ target\\
+recalibrated MAD & \PZeroSelectedMadBudgetBp & \PZeroSelectedMadSigmaBp &
+passes true sigma gate\\
+exact SOCP & \MSixMadTenBudgetBp & \PZeroSocpWorkingClarabelTeBp &
+mandate represented directly\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The selected MAD budget is not the largest nominal budget. Among candidates
+that pass sigma TE and every mandate gate, it is the one with the highest
+independently recomputed objective. Its sigma TE ranges from
+\PZeroValidationSigmaMinBp\,bp to \PZeroValidationSigmaMaxBp\,bp on
+\PZeroValidationDrawCount{} fixed independent scenario draws, none used to
+choose the budget.
+
+Candidate generation begins at MAD budgets 1, 2, 3, 5, and 10bp, testing
+PDLP tolerances $10^{-4}$ and $10^{-6}$. Adjacent achieved-sigma values bracket
+the 10bp target between 2 and 3bp. Bisection adds midpoint budgets, up to eight
+steps or an interval width of 0.1bp; selection uses all eligible recorded
+candidates rather than assuming their objective is monotone. Validation
+seeds 101, 211, and 307 score the fixed selected weights on fresh 20,000-row
+draws and do not enter selection. This is not the best possible recalibrated
+MAD frontier: a tighter solve of a rejected candidate could improve the cost.
+
+The recalibration is therefore feasible but not free. Relative to exact SOCP,
+expected excess return decreases by
+\PZeroSelectedMadExpectedExcessLossBp\,bp per month, CVaR loss increases by
+\PZeroSelectedMadCvarCostBp\,bp, and the scaled objective decreases by
+\PZeroSelectedMadObjectiveLossBp\,bp. The defensible
+conclusion is a cost--accuracy trade-off: naive calibration fails, conservative
+recalibration works on these draws, and exact conic modeling avoids having to
+learn a proxy haircut.
+
+\subsection{Why defaults matter}
+
+The separate tail sweep uses 120 bonds, 4,000 scenarios, universe seed 7,
+and scenario seeds 11, 12, and 13. It keeps the optimization and mandate fixed
+while varying continuous-tail degrees of freedom and default intensity.
+At the 5bp MAD budget, defaults-off per-degree-of-freedom median overshoot
+ranges from \MNineNoJumpOvershootMin$\times$ to
+\MNineNoJumpOvershootMax$\times$; the minimum defaults-on cell median is
+\MNineDefaultsOnOvershootMin$\times$. This is not a lower bound on individual
+draws or other budgets. At $\nu=5$, raising the default-probability multiplier
+from 0.01 to 0.30 raises median overshoot from
+\MNineDoseOneOvershoot$\times$ to \MNineDoseThirtyOvershoot$\times$.
+This supports the mechanism that an
+absolute-deviation proxy underweights rare large losses relative to quadratic
+dispersion. It does not identify a universal causal percentage.
+
+\begin{figure}[tp]
+\centering
+\MaybeFigure{m9_tail_sweep.pdf}{run \texttt{scripts/plot\_tail\_sweep.py}}
+\caption{Paired tail and jump controls. Markers are scenario draws; medians
+summarize cells. The experiment is mechanism evidence, not a structural
+decomposition.}
+\label{fig:tail}
+\end{figure}
+\clearpage
+
+\section{Endpoint ladder}
+
+The endpoint ladder asks whether satisfying the \emph{MAD-form LP} requires
+a basic solution. The table uses the nominal MAD@10bp problem, not the
+recalibrated proxy and not an exact sigma constraint.
+\begin{center}
+\small
+\begin{tabular}{L{3.0cm}rrL{3.3cm}}
+\toprule
+Endpoint & reported time (s) & LP purity & interpretation\\
+\midrule
+PDLP raw, loose & \PZeroEndpointLooseRawSeconds &
+\PZeroEndpointLooseRawVerdict & approximate point\\
+loose + L1 repair & \PZeroEndpointLooseRepairSeconds &
+\PZeroEndpointLooseRepairVerdict & repaired continuous point\\
+PDLP raw, tight & \PZeroEndpointTightRawSeconds &
+\PZeroEndpointTightRawVerdict & MAD-form feasible point\\
+crossover/basic & $>\PZeroEndpointBasicLowerBoundSeconds$ &
+\PZeroEndpointBasicStatus & no completed endpoint\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Successful rows report steady-state solve medians, plus a separately measured
+repair median where applicable. They exclude scenario generation, model
+construction, and the first solve. The crossover row instead reports elapsed
+time to timeout without a completed endpoint, not a steady-state median.
+These are not end-to-end cold-start latencies.
+
+The loose repair clears the desk gate but not the stricter purity gate because
+the TE proxy itself is not visible to a repair over the linear mandate
+families. Tightening PDLP produces a raw point that passes both LP gates.
+Its true sigma TE remains \PZeroNaiveMadSigmaBp\,bp, so it \emph{fails} the
+10bp sigma target. The conclusion is solely that the MAD-form LP can be
+satisfied by a continuous nonbasic point; crossover is not necessary for
+that narrower endpoint.
+A basic solution may still be useful for downstream operations, but this paper
+does not model lots or claim that a vertex is a desk requirement.
+
+\section{What contributes to crossover cost?}
+
+The earlier unpaired ablation could not support a causal attribution to
+turnover. We rerun the full linear credit mandate (without a TE constraint)
+and a leave-one-out mandate in the same
+session, with all other families unchanged. Crossover overhead is the
+difference between crossover-enabled and raw solve medians, not an internal
+solver phase timer.
+\begin{center}
+\begin{tabular}{lrr}
+\toprule
+Constraint set & auxiliary variables added & crossover overhead (s)\\
+\midrule
+budget and box & -- & \PZeroLZeroCrossoverSeconds\\
+full mandate & \PZeroFullAuxVariables & \PZeroFullCrossoverSeconds\\
+full minus turnover & \PZeroNoTurnoverAuxVariables &
+\PZeroNoTurnoverCrossoverSeconds\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Removing turnover reduces overhead by \PZeroTurnoverMarginalSeconds\,s,
+\PZeroTurnoverMarginalSharePct{} of the full value. Under the pre-specified
+rule the verdict is \texttt{\PZeroTurnoverVerdict}: turnover contributes
+materially, while the remaining constraints still leave crossover far above
+the budget-and-box baseline. The percentage is a paired marginal contrast on
+this instance, not a portable causal share.
+
+\section{Matched-feasibility QP benchmark}
+
+The companion QP branch maximizes $\mu^\top w-(\lambda/2)w^\top\Sigma w$
+under the same non-TE credit limit sheet. Its factor-plus-diagonal covariance
+is estimated using the scenario generator's factor structure, not asserted
+equal to the full empirical covariance used by the sigma-TE experiment. A dense
+$N\times N$ covariance and its factorized representation are mathematically
+equivalent but computationally different. This distinction predates GPU
+portfolio solvers~\citep{perold1984large} and remains central in current bond
+work~\citep{benslimane2026bond}.
+
+We compare strict Clarabel CPU and cuOpt GPU barrier stacks. Clarabel uses
+$10^{-9}$ feasibility and absolute/relative gap tolerances with up to 2,000
+iterations; cuOpt is pinned to barrier at its solver defaults. Raw rows require
+the $10^{-6}$ mandate gate and relative solver-versus-recomputed objective
+agreement within $10^{-6}$. Clarabel rows that miss the independent mandate
+gate receive a minimum-distance repair. Repaired weights are checked for
+feasibility and their QP objective is recomputed, but agreement with a
+solver-reported objective for the original QP is not applicable at that new
+point. Its zero discrepancy field is a self-comparison, not independent
+solver confirmation; raw diagnostics remain archived. Repaired common-quality
+time is the solve median plus repair time. Because a repaired CPU point
+and raw GPU point are different endpoints, those pairs receive no ratio. Of
+\PZeroQpEligibleRows{} independently eligible rows, only
+\PZeroQpRatioRows{} form matched raw-endpoint ratios.
+The table divides GPU by CPU steady-state solve medians; it excludes build,
+scenario generation, and first-solve costs.
+
+\begin{center}
+\begin{tabular}{rrrr}
+\toprule
+Names & dense GPU/CPU & factored GPU/CPU & endpoint\\
+\midrule
+\PZeroQpFiveHundredBonds & \PZeroQpRawRatioDenseFiveHundred &
+\PZeroQpRawRatioFactoredFiveHundred & raw/raw\\
+\PZeroQpTwoThousandBonds & \PZeroQpRawRatioDenseTwoThousand &
+\PZeroQpRawRatioFactoredTwoThousand & raw/raw\\
+\PZeroQpThreeThousandBonds & \PZeroQpRawRatioDenseThreeThousand &
+\PZeroQpRawRatioFactoredThreeThousand & raw/raw\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The signs differ by representation and size: there is no single ``GPU
+speedup.'' The maximum relative gap to the best feasible objective among
+eligible rows is \PZeroQpMaxObjectiveGap, which is reported rather than hidden
+behind feasibility. Factorized GPU rows solve through
+\PZeroQpLargestSolvedBonds{} names. At the \PZeroQpAmundiBonds{}-name case, dense
+arms are refused by the harness's host-memory policy and factored arms record
+\texttt{\PZeroQpAmundiFactoredStatus} during scenario generation. Dense does
+not cease to exist mathematically; these are explicit resource outcomes of
+this workstation and harness.
+
+The comparison is adjacent to GPU conic work such as
+CuClarabel~\citep{chen2024cuclarabel}, GPU portfolio solvers such as
+FlashFolio~\citep{jiang2026flashfolio}, and deadline-oriented systems such as
+PRISM~\citep{ghosh2026prism}. It differs by making endpoint and independent
+mandate delivery prerequisites for a ratio.
+
+\section{Threats to validity}
+
+\paragraph{Model risk.} The scenario generator is parameterized using stylized
+assumptions, not fitted to a market return panel or validated as a production
+fixed-income risk model. N-PORT supplies real instruments and
+characteristics, not transaction histories or an authoritative covariance.
+The three validation draws test generator robustness, not market validity.
+
+\paragraph{External validity.} Results come from one consumer GPU, one CPU,
+one software stack, and a limited grid. Solver-stack ratios are not hardware
+causal effects. A native crash is a version-specific recorded outcome, not a
+claim that the cuOpt product class cannot represent SOCP.
+
+\paragraph{Endpoint scope.} We study continuous portfolios. Basic solutions,
+lots, cardinality, and executable trade lists are distinct requirements. The
+endpoint ladder answers MAD-form LP feasibility only, not sigma delivery.
+
+\paragraph{Proxy scope.} Recalibration is selected in-model and checked on
+fixed independent draws. It may drift across regimes. An exact SOCP or a
+conservative lifted polyhedral approximation avoids assuming a stable MAD to
+sigma conversion.
+
+\paragraph{Data rights.} The committed real-instrument universe is derived
+from public-domain SEC N-PORT data. Licensed TRACE, WRDS, FISD, ICE, and ETF
+holdings extracts are not redistributed. Optional runtime downloads retain
+their source terms and hashes.
+
+\section{Related work}
+
+Tracking-error-constrained portfolio geometry is established by
+\citet{jorion2003tracking}, while MAD optimization follows
+\citet{konno1991mad}. The present contribution is not either formulation but
+their measured mandate delivery after optimization and the resulting
+cost--accuracy comparison. Geary's ratio~\citep{geary1935ratio} and bipower
+variation~\citep{barndorff2004bipower} supply the statistical ancestry for the
+absolute-versus-quadratic dispersion gap.
+
+SOC constraints need not force a choice between an exact conic solver and a
+nonconservative MAD proxy. Lifted polyhedral approximations are classical
+\citep{bental2001soc,vielma2008lifted}; they are a natural extension because
+this benchmark separately measures the cost of auxiliary-variable
+reformulations.
+
+NVIDIA's cuFOLIO provides general cuOpt portfolio workflows
+\citep{nvidia2026cufolio}. CuClarabel accelerates conic
+optimization on GPUs~\citep{chen2024cuclarabel}; FlashFolio studies a GPU
+portfolio solver~\citep{jiang2026flashfolio}; PRISM studies deadline-bounded
+CPU/GPU rebalancing~\citep{ghosh2026prism}; and \citet{niu2026meanvariance}
+analyze large mean-variance problems. Amundi's bond work emphasizes both
+security-level constraints, L1/L2 risk, and formulation choice
+\citep{benslimane2026bond,benslimane2023bondmip}. Those results mean that
+neither bond optimization nor the L1/L2 distinction is new. Our addition is
+an open cuOpt-based credit benchmark joining issuer-level default scenarios,
+credit exposure constraints, proxy recalibration, and solver-endpoint
+measurements. These adjacent works do not establish that this exact
+combination has already been benchmarked; equally, we do not claim an
+exhaustively verified ``first'' implementation. The contribution is the
+credit-specific experimental artifact and its findings, not the use of a
+GPU or a feasibility checker alone.
+
+\section{Conclusion}
+
+cuOpt can solve useful continuous credit-portfolio formulations, but the answer
+depends on risk modeling, constraints, and the required endpoint.
+Naive MAD is fast but does not deliver the nominal sigma mandate.
+Recalibration delivers it on the tested draws, with a
+\PZeroSelectedMadHaircut$\times$ haircut and measurable economic cost. Exact
+SOCP delivers the modeled mandate directly at reference size in both stacks;
+no comparative SOCP speed claim survives the timing-contamination gate.
+The working-size cuOpt native path records a crash and Clarabel supplies
+feasibility evidence. Tight raw PDLP can satisfy the MAD-form LP without
+crossover, but still violates the original sigma target. Removing turnover
+reduces paired crossover overhead by \PZeroTurnoverMarginalSharePct;
+substantial overhead remains.
+On the QP branch, representation and endpoint matching prevent most tempting
+CPU/GPU ratios from being publishable.
+
+The practical recommendation is simple: define the required endpoint, score it
+independently, and only then time it. Hardware accelerates a formulation; it
+does not certify that the formulation delivered the mandate.
+
+\section{Reproducibility}
+
+The repository commits result CSVs, provenance headers, scenario seeds,
+independent check fields, and recorded non-results. The paper never contains a
+typed empirical result: \path{scripts/make_paper_numbers.py} generates
+\path{paper/numbers.tex} and exits nonzero if a required cell is absent.
+The principal evidence files are:
+\begin{itemize}
+\item \path{p0_socp_reference.csv} and \path{p0_socp_working.csv};
+\item \path{p0_te_recalibration.csv};
+\item \path{p0_endpoint_ladder.csv};
+\item \path{p0_ablation_loo.csv};
+\item \path{p0_qp_matched.csv}.
+\item \path{m9_tail_sweep.csv} for the separate mechanism experiment.
+\end{itemize}
+The schemas distinguish solver-returned outcomes from author classifications
+where recorded; fields and completeness vary across runners. Historical
+results remain in the repository but do not override the corrected
+measurements. The release README gives separate CPU-only artifact checks
+and optional GPU experiment reproduction. Original measurements are retained;
+reruns should write to new paths. A passing number-generation step establishes
+traceability, not by itself scientific validity or freedom from contention.
+
+\appendix
+\section{Synthetic model specification}\label{app:generator}
+
+The operating parameters below are stylized assumptions in
+\path{src/scenarios.py}, not estimates fitted to a bond-return panel.
+Systematic level, slope, and credit shocks are standardized multivariate
+Student-$t$ with $\nu=5$. Positive credit shocks are multiplied by 1.35, then
+recentered; the widening transform therefore changes realized volatility.
+Rating, sector, and bond residual shocks are Gaussian and demeaned in-sample.
+Before the high-yield multiplier, their monthly relative-spread scales are
+0.04, 0.05, and 0.06, and the systematic credit scale is 0.08. BB and B bonds
+receive a 1.20 multiplier. Rate level and slope scales are 25 and 12bp;
+their correlation is $-0.30$, and level--credit correlation is $-0.35$.
+The reported excess-return branch cancels the first-order Treasury rate leg.
+
+For spread $s_i$, spread duration $D_i$, convexity $C_i$, and monthly
+absolute spread change $\Delta s_{si}$, the nondefault return approximation is
+\[
+ R_{si}=s_i/12-D_i\Delta s_{si}+\tfrac12 C_i(\Delta s_{si})^2.
+\]
+Default replaces this return with $(40-P_i)/P_i$, where $P_i$ is price per
+100 face. Issuer asset shocks combine the standardized, sign-reversed credit
+factor and an independent normal shock with loading correlation 0.15.
+Thresholds are estimated from a separate Monte Carlo draw under that same
+non-Gaussian distribution. Annual default probabilities for AAA, AA, A, BBB,
+BB, and B are respectively 0.01\%, 0.03\%, 0.08\%, 0.25\%, 1.10\%, and
+4.20\%; monthly targets divide these by 12. Every bond of an issuer shares
+the same event. The drift $\mu_i$ is carry plus the sample second-order
+convexity gain plus target default probability times default return, not a
+sample-mean alpha estimate. Full details and diagnostic disagreements between
+this drift and the realized sample mean are retained in the artifact.
+
+\path{src/universe.py} generates fixed-rate bullet bonds. Benchmark weights
+are proportional to issue size times price. Issue sizes follow a lognormal
+distribution with median USD600 million, log standard deviation 0.60, and a
+USD250 million floor. The incumbent samples 65\% of the bonds without
+replacement using benchmark-weight probabilities; held benchmark weights are
+multiplied by lognormal tilts with log standard deviation 0.20 and normalized.
+Issuer rating probabilities for AAA through B are 1\%, 7\%, 32\%, 45\%,
+10\%, and 5\%; rating OAS anchors are 45, 60, 90, 140, 260, and 420bp before
+sector, issuer, tenor, and bond multipliers. These are design inputs, not
+observations of a particular index.
+
+Maturity buckets are $[0,3)$, $[3,7)$, $[7,12)$, and $[12,40)$ years.
+For bucket $c$, its duration constraint is
+\[
+ \left|\sum_{i\in c}D_i(w_i-w_i^b)\right|\leq0.25\text{ years}.
+\]
+This bounds a contribution to total portfolio duration, not the bucket's
+average duration. The benchmark and incumbent, unlike solver choice, remain
+fixed within each paired experiment.
+
+{\small\bibliography{references}}
+\end{document}
