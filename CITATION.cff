@@ -1,12 +1,12 @@
 cff-version: 1.2.0
-message: "Please cite the working paper and this versioned artifact. This is not a peer-reviewed publication."
+message: "Please cite the working paper and the artifact version you use. This local revision candidate is not a peer-reviewed publication."
 type: software
 title: "Credit Portfolio Optimization with cuOpt: A Reproducible Benchmark of Risk, Constraints, and Solver Endpoints"
 authors:
   - family-names: Hu
     given-names: Fred
-version: 1.0.0
-date-released: 2026-10-07
+# Candidate version; no release date or uncreated release URL is asserted.
+version: 1.1.0
 repository-code: "https://github.com/FredHuFuture/credit-cuopt-benchmark"
-url: "https://github.com/FredHuFuture/credit-cuopt-benchmark/releases/tag/v1.0.0"
+url: "https://github.com/FredHuFuture/credit-cuopt-benchmark/releases"
 license: Apache-2.0

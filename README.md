@@ -18,6 +18,12 @@ are distributed with each release. This repository starts from a reviewed
 snapshot; earlier development history and private correspondence are not
 published.
 
+The current local revision candidate includes the supplemental experiments in
+[NEXT_VERSION.md](NEXT_VERSION.md): single-request timing and a hypothetical
+bond-lot repair pilot, now reported in the paper's Appendix B. They add
+implementation evidence, not a new speedup or real-market claim. The previously
+published v1.0.0 assets are unchanged; this candidate awaits Fred's publication.
+
 ## What the P0 review changed
 
 The original draft overreached. A sigma tracking-error mandate is an SOC
@@ -121,6 +127,28 @@ mathematical formulation ceases to exist.
 
 Evidence: `results/p0_qp_matched.csv`.
 
+## Supplemental pilots in this revision
+
+- **Single-request timing:** separate build, canonicalization, solve, repair
+  and validation, with a 30s request watchdog and explicit cold/cached modes.
+  The 100-bond by 1,000-scenario GPU smoke retains all three `optimal` rows,
+  but none passes all independent gates. PDLP/MAD delivers about 28.29bp
+  against the 10bp sigma target. Native SOCP delivers 9.99997bp and satisfies
+  the mandate, but its objective discrepancy is 1.083584e-6 against the 1e-6
+  gate. No new GPU, warm-start or CPU/GPU speed ratio is claimed.
+- **Cash-aware bond lots:** a 60-bond by 500-scenario CPU pilot compares
+  continuous SOCP, rounding and L1 MILP repair at three NAVs. Quantity and
+  linear compliance do not ensure sigma compliance. The $10M repair has an
+  independently feasible capped incumbent, not certified L1 optimality.
+  Lot sizes are hypothetical; this is not an executable bond-trading system.
+
+Evidence: `results/p1_request_timing_cpu.csv`,
+`results/p1_request_timing_gpu_smoke.csv`, and `results/p1_bond_lots_cpu.csv`
+with its metadata/portfolio sidecars. Appendix B and `NEXT_VERSION.md` give
+the complete outcomes, timing boundary, gates and remaining limitations.
+The unresolved barrier objective discrepancy is disclosed as a failed
+acceptance outcome, not hidden or used in a comparison.
+
 ## Real-instrument universe
 
 `src/nport.py` and `scripts/fetch_nport.py` derive a bond universe from SEC
@@ -213,7 +241,9 @@ claims that moved or were retired.
 
 ## Scope and limitations
 
-- Continuous relaxation only; no lots, cardinality, or executable trade list.
+- Main benchmark is a continuous relaxation. The supplemental lot-repair
+  pilot does not enforce the sigma cone or model cardinality or executable
+  trade lists.
 - Controlled scenario generator, not a validated production risk model.
 - One CPU/GPU workstation and one software stack.
 - Solver-stack comparisons are not pure hardware causal effects.

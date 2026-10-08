@@ -8,6 +8,9 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{microtype}
+\hypersetup{pdftitle={Credit Portfolio Optimization with cuOpt: A Reproducible Benchmark of Risk, Constraints, and Solver Endpoints},
+ pdfauthor={Fred Hu},pdfsubject={Technical working paper, revision candidate},
+ pdfkeywords={credit portfolios, cuOpt, CVaR, tracking error, feasibility, bond lots}}
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \graphicspath{{../results/}{./}}
 \bibliographystyle{plainnat}
@@ -23,7 +26,7 @@
        A Reproducible Benchmark of Risk, Constraints, and Solver Endpoints}
 \author{Fred Hu\thanks{Correspondence: \texttt{fred.qian.hu@gmail.com}. Artifacts:
 \url{https://github.com/FredHuFuture/credit-cuopt-benchmark}.}}
-\date{\today}
+\date{October 8, 2026\\\small Revision candidate; technical working paper}
 
 \begin{document}
 \maketitle
@@ -56,7 +59,9 @@ compliance. A paired turnover leave-one-out and a matched-feasibility QP
 comparison show that constraint structure, representation, and solver endpoint
 matter alongside device choice. Results use a controlled credit scenario
 generator, not an empirical asset-pricing test or an executable bond-trading
-system. Reported measurements are generated from archived result files.
+system. Supplemental pilots examine single-request timing and hypothetical
+bond-lot repair, retaining failed quality gates rather than reporting new
+speed advantages. Reported measurements are generated from archived result files.
 \end{abstract}
 
 \section{Introduction}
@@ -112,10 +117,12 @@ Our findings are fourfold.
       reported separately and never converted into a speed ratio.
 \end{enumerate}
 
-The scope is a continuous relaxation. Bond lots, minimum trade sizes,
+The main benchmark is a continuous relaxation. Bond lots, minimum trade sizes,
 cardinality, transaction-cost schedules, and operational pre-trade checks are
-important but remain a separate mixed-integer implementation layer, as in
-institutional bond-optimization work~\citep{benslimane2023bondmip}.
+distinct implementation requirements, as in institutional bond-optimization
+work~\citep{benslimane2023bondmip}. Appendix~\ref{app:pilots} adds a small
+hypothetical lot-repair pilot and a single-request timing protocol. Neither
+establishes market execution readiness or extends the main performance grid.
 
 \section{Model and mandate}
 
@@ -239,7 +246,7 @@ recorded outcomes, not silently dropped cells.
 
 \subsection{Timing discipline}
 
-Measurements were collected in August 2026 on an \EnvCpu{} CPU and an
+Main measurements were collected in August 2026 on an \EnvCpu{} CPU and an
 \EnvGpu{} GPU (\EnvGpuMemory), under WSL2. The software stack uses Python
 \EnvPython, CVXPY \EnvCvxpy, cuOpt \EnvCuopt, Clarabel 0.11.1, and HiGHS
 \EnvHighs; the archived WSL environment reports 6.8GiB of visible RAM.
@@ -259,6 +266,9 @@ simplex arm includes three timed capped runs; the no-repeat policy was not
 uniformly implemented. The artifact distinguishes
 within-process steady-state repeats from process-isolated experiments; these
 timings are descriptive workstation measurements, not confidence intervals.
+The October supplemental pilot uses a separate single-request clock and stores
+its own environment and source hashes. Its observations are not pooled with
+the August timings; see Appendix~\ref{app:request}.
 
 \section{Exact SOCP and MAD recalibration}
 
@@ -351,9 +361,11 @@ dispersion. It does not identify a universal causal percentage.
 \begin{figure}[tp]
 \centering
 \MaybeFigure{m9_tail_sweep.pdf}{run \texttt{scripts/plot\_tail\_sweep.py}}
-\caption{Paired tail and jump controls. Markers are scenario draws; medians
-summarize cells. The experiment is mechanism evidence, not a structural
-decomposition.}
+\caption{Paired tail and jump controls. Panel A shows cell medians and
+min--max ranges across scenario draws. Panel B distinguishes individual draws
+from cell medians; panel C compares optimized and fixed-book Gaussian
+controls across scenario counts. The experiment is mechanism evidence, not
+a structural decomposition.}
 \label{fig:tail}
 \end{figure}
 \clearpage
@@ -367,7 +379,7 @@ recalibrated proxy and not an exact sigma constraint.
 \small
 \begin{tabular}{L{3.0cm}rrL{3.3cm}}
 \toprule
-Endpoint & reported time (s) & LP purity & interpretation\\
+Endpoint & reported time (s) & gate verdict & interpretation\\
 \midrule
 PDLP raw, loose & \PZeroEndpointLooseRawSeconds &
 \PZeroEndpointLooseRawVerdict & approximate point\\
@@ -394,8 +406,10 @@ Its true sigma TE remains \PZeroNaiveMadSigmaBp\,bp, so it \emph{fails} the
 10bp sigma target. The conclusion is solely that the MAD-form LP can be
 satisfied by a continuous nonbasic point; crossover is not necessary for
 that narrower endpoint.
-A basic solution may still be useful for downstream operations, but this paper
-does not model lots or claim that a vertex is a desk requirement.
+A basic solution may still be useful for downstream operations, but this
+continuous endpoint ladder does not model lots or claim that a vertex is a
+desk requirement. The separate lot pilot in Appendix~\ref{app:lots} checks
+quantities explicitly rather than treating a basis as a proxy for them.
 
 \section{What contributes to crossover cost?}
 
@@ -497,9 +511,13 @@ one software stack, and a limited grid. Solver-stack ratios are not hardware
 causal effects. A native crash is a version-specific recorded outcome, not a
 claim that the cuOpt product class cannot represent SOCP.
 
-\paragraph{Endpoint scope.} We study continuous portfolios. Basic solutions,
-lots, cardinality, and executable trade lists are distinct requirements. The
-endpoint ladder answers MAD-form LP feasibility only, not sigma delivery.
+\paragraph{Endpoint scope.} The main experiments study continuous portfolios.
+Basic solutions, lots, cardinality, and executable trade lists are distinct
+requirements. The endpoint ladder answers MAD-form LP feasibility only, not
+sigma delivery. The supplemental MILP repairs linear and hypothetical quantity
+constraints, not a sigma cone. A feasible capped incumbent is not certified
+optimal. Neither pilot includes real security-level trading conventions,
+liquidity or execution costs.
 
 \paragraph{Proxy scope.} Recalibration is selected in-model and checked on
 fixed independent draws. It may drift across regimes. An exact SOCP or a
@@ -579,6 +597,9 @@ The principal evidence files are:
 \item \path{p0_ablation_loo.csv};
 \item \path{p0_qp_matched.csv}.
 \item \path{m9_tail_sweep.csv} for the separate mechanism experiment.
+\item \path{p1_bond_lots_cpu.csv}, with metadata and portfolio sidecars;
+\item \path{p1_request_timing_cpu.csv} and
+      \path{p1_request_timing_gpu_smoke.csv} for the supplemental pilots.
 \end{itemize}
 The schemas distinguish solver-returned outcomes from author classifications
 where recorded; fields and completeness vary across runners. Historical
@@ -639,6 +660,140 @@ For bucket $c$, its duration constraint is
 This bounds a contribution to total portfolio duration, not the bucket's
 average duration. The benchmark and incumbent, unlike solver choice, remain
 fixed within each paired experiment.
+
+\section{Supplemental implementation pilots}\label{app:pilots}
+
+These October 2026 pilots extend the artifact, not the main performance grid.
+They use synthetic instruments and the same scenario generator, with universe
+seed 7 and scenario seed 11. They are functional measurements on small
+instances, not empirical validation, a scaling study or additional speedup
+claims. Inspired by quantity-aware bond optimization
+\citep{benslimane2023bondmip} and explicit timing/quality comparisons
+\citep{ghosh2026prism,chen2024cuclarabel}, they do not reproduce those systems,
+use a licensed risk model, or run CuClarabel.
+
+\subsection{One request, one timing boundary}\label{app:request}
+
+The new runner records build, explicit CVXPY canonicalization, solve call,
+repair (zero in this pilot), and independent validation separately. A single
+wall clock covers the whole request, including interstage overhead and
+resource snapshots. Scenario generation, worker startup and checkpoint I/O
+are excluded and identified separately. The solve-call bucket includes adapter,
+transfer and result unpacking; it is not GPU kernel time. This differs from
+legacy batch fields that can include a first solve plus multiple repeats.
+
+Each solver starts in its own process. Its first request builds a fresh model;
+the subsequent cached request, if accepted, reuses that CVXPY Problem and
+requests warm start without asserting solver-state reuse. Cold means fresh
+model, not necessarily cold libraries or device. A process watchdog caps each
+request at 30s. All outcomes checkpoint immediately into a new output file;
+failed acceptance suppresses cached requests rather than repeating failures.
+
+The instance has 100 bonds and 1,000 CPU-generated scenarios, a 10bp annualized
+sigma target, $\alpha=0.95$ and $\lambda=3$. The LP stacks solve MAD@10bp;
+conic stacks model sigma directly. In addition to the original mandate purity
+gate, acceptance requires budget/bound checks, a converged status, absolute
+solver-versus-recomputed objective discrepancy at most $10^{-6}$, and true
+sigma no more than $10+10^{-5}$bp. Clarabel uses $10^{-10}$ feasibility and gap
+tolerances and one thread; HiGHS simplex uses $10^{-9}$ primal/dual feasibility
+tolerances and one thread. PDLP uses the named tolerance and cuOpt barrier
+retains its solver defaults. The archived configurations and package versions
+are authoritative; the pilot does not silently equalize solver settings.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{L{4.1cm}rrL{3.4cm}}
+\toprule
+Request & wall (s) & sigma TE (bp) & acceptance\\
+\midrule
+HiGHS MAD, cold & \POneCpuHighsSeconds & \POneCpuHighsSigmaBp & rejected: true sigma\\
+Clarabel SOC, cold & \POneCpuSocpColdSeconds & \POneCpuSocpColdSigmaBp & accepted\\
+Clarabel SOC, cached & \POneCpuSocpCachedSeconds & \POneCpuSocpCachedSigmaBp & accepted\\
+PDLP $10^{-4}$ MAD, cold & \POneGpuLooseSeconds & \POneGpuLooseSigmaBp & rejected: purity, sigma\\
+PDLP $10^{-6}$ MAD, cold & \POneGpuTightSeconds & \POneGpuTightSigmaBp & rejected: purity, sigma\\
+cuOpt SOC, cold & \POneGpuSocpSeconds & \POneGpuSocpSigmaBp & rejected: objective\\
+\bottomrule
+\end{tabular}
+\caption{Single-request diagnostics, not comparable speed measurements. Each
+entry is one observation, not a median. Different formulations and request
+modes, and failed acceptance gates, preclude a comparative ratio. All solver
+statuses are \texttt{optimal}; independent acceptance is a separate test.}
+\label{tab:request}
+\end{table}
+
+The CPU file retains \POneCpuRowCount{} rows and the GPU file
+\POneGpuRowCount{} rows. Both PDLP points pass the illustrative desk gate but
+miss strict MAD purity and, separately, the true sigma target. The cuOpt SOC
+portfolio satisfies budget, bounds, purity and sigma. Its objective discrepancy
+is $\POneGpuSocpObjectiveGap$, just above the $10^{-6}$ gate. Its independently
+recomputed objective differs from the cold same-model Clarabel reference by
+only $\POneGpuSocpVsCpuObjectiveGap$; that closeness does not override the failed
+gate or certify optimality. The CSV preserves weights but not the CVaR
+auxiliary values. Default tolerance and auxiliary residuals are hypotheses for
+further diagnosis, not established causes. No GPU row is accepted
+(\POneGpuAcceptedCount{} accepted, \POneGpuRatioCount{} reported ratios).
+
+The GPU run began after consecutive device-utilization samples passed a
+25\% launch guard. This is not continuous workload exclusion: the per-request
+telemetry consists only of device-wide before/after snapshots, not peaks or
+proof of isolation. The table therefore provides a reproducible timing
+\emph{boundary} and quality audit, not a new CPU/GPU or warm-start speed claim.
+
+\subsection{Cash-aware lot repair}\label{app:lots}
+
+The CPU quantity pilot uses 60 bonds, 500 scenarios and NAVs of USD1, 10 and
+100 million. Hypothetical conventions are a USD1,000 par increment, USD10,000
+minimum nonzero holding, USD5,000 minimum nonzero trade and a 2\% cash cap.
+They are design inputs, not asserted market conventions. Price is a settlement
+proxy with zero accrued interest. For integer lot counts $k_i$, par increment
+$L$, price $P_i$ per 100 par, and NAV $V$,
+\[
+ w_i=k_iLP_i/(100V),\qquad \sum_iw_i+c=1,\qquad
+ \tfrac12(\lVert w-w^0\rVert_1+|c-c^0|)\leq0.25.
+\]
+Cash $c$ is not renormalized away and earns zero excess return. The incumbent
+is floored onto the lot lattice, sub-minimum positions removed and residual
+cash retained. Its adjustment changes with NAV, so this is not a causal test
+of lot size alone. The benchmark remains unchanged.
+
+Within each NAV case the continuous cash-aware SOCP, naive rounding and repair
+share the same mandate and starting book. HiGHS MILP minimizes bond-plus-cash
+L1 distance from the continuous source subject to the linear mandate and
+quantity rules. Separate buy/sell binaries prevent opposing trades from
+evading minimum sizes. Both minimum sizes must be integer multiples of the
+increment in this implementation. Crucially, this repair does not enforce the
+sigma cone; true sigma is rescored afterward. Each solve has a 30s cap.
+
+\begin{table}[htbp]
+\centering\small
+\begin{tabular}{lrrL{5.5cm}}
+\toprule
+NAV & rounded sigma & repaired sigma & repair outcome\\
+\midrule
+USD1M & \POneLotOneRoundedSigmaBp & \POneLotOneRepairSigmaBp & L1 optimal; sigma fails\\
+USD10M & \POneLotTenRoundedSigmaBp & \POneLotTenRepairSigmaBp & capped feasible incumbent; not certified optimal\\
+USD100M & \POneLotHundredRoundedSigmaBp & \POneLotHundredRepairSigmaBp & L1 optimal; strict sigma fails\\
+\bottomrule
+\end{tabular}
+\caption{Quantity pilot. Sigma is annualized bp against a 10bp target.
+All MILP repair rows pass the independent linear and quantity gates.
+The complete artifact retains \POneLotRowCount{} endpoint rows, including the
+three continuous references and all infeasible rounded portfolios.}
+\label{tab:lots}
+\end{table}
+
+Rounding is not feasible in any case. At USD10M it passes sigma but overspends
+cash and creates a sub-minimum trade. The repaired USD10M incumbent passes
+all independent portfolio checks, but the solve reaches its time cap with a
+\POneLotTenRepairGapPct{} MIP gap on L1 distance, not on economic objective.
+It is not accepted as a converged endpoint. The USD100M repair misses sigma
+by only \POneLotHundredRepairSigmaExcessBp\,bp, below the illustrative desk
+tolerance but above the unchanged strict numerical gate. Solver optimal status
+on the other MILP rows refers to the L1 repair within configured MIP tolerances,
+not the original CVaR objective or executable trading quality. No lot row enters
+a speed ratio. The pilot shows why linear/quantity compliance does not imply
+delivery of a tight sigma budget; market-calibrated risk, security-specific
+conventions, transaction costs, cardinality and MISOCP remain outside scope.
 
 {\small\bibliography{references}}
 \end{document}

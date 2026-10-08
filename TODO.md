@@ -1,5 +1,19 @@
 # Open items
 
+## Unreleased extension (2026-10-08)
+
+See `NEXT_VERSION.md` for the new request-timing lane and small CPU bond-lot
+pilot. These do not upgrade v1 to a market-validated or executable trading
+system. Real risk calibration, issuer-level quantity data, transaction costs,
+liquidity, and integer sigma-constrained optimization remain open. Publication
+is a manual action reserved for Fred.
+
+The small cuOpt request-timing smoke has now completed. Its native SOCP
+portfolio passes the constraint gates but misses the objective-consistency
+gate (1.083584e-6 versus 1e-6); the two MAD portfolios fail true sigma.
+Investigate barrier precision/auxiliary residuals before a GPU baseline or
+matched timing comparison. Keep the original smoke rows and the checker.
+
 ## Current scope (2026-10-07)
 
 The sections below are an August development ledger, not current publication

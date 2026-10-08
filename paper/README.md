@@ -61,6 +61,19 @@ rows are reported separately and are not evidence of equal optimality.
 Historical result files are retained. Rerun into a new filename or
 `results/tmp/`, never over a released CSV. See `ERRATA.md` for corrections.
 
+## Current revision candidate
+
+Appendix B integrates the October single-request timing and hypothetical
+bond-lot pilots. The `p1_*.csv` sources and quantity sidecars accompany the
+code. All three GPU smoke rows retain failed acceptance gates; they support
+no timing ratio. The quantity repair does not enforce sigma, and its capped
+feasible incumbent is not certified optimal. These are supplemental results,
+not an expanded production-risk or performance claim.
+
+The PDF uses a fixed October 8, 2026 candidate date and descriptive metadata.
+Building replaces the local `main.pdf` and prepares a new `arxiv.tar.gz`;
+published v1.0.0 assets remain intact. Fred performs final publication.
+
 ## Independent source package
 
 `make_arxiv.sh` stages only `main.tex`, generated `numbers.tex`, `main.bbl`

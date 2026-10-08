@@ -193,6 +193,23 @@ SOURCES: dict[str, Source] = {
         "--repair-strict-clarabel --resume --out results/p0_qp_matched.csv",
         "P0 matched-quality solver-stack QP benchmark",
     ),
+    "p1lots": Source(
+        "p1_bond_lots_cpu.csv",
+        "python scripts/run_bond_lots.py --out results/p1_bond_lots_cpu.csv",
+        "P1 CPU continuous, rounded, and lot-repaired quantity pilot",
+    ),
+    "p1cpu": Source(
+        "p1_request_timing_cpu.csv",
+        "python scripts/run_request_bench.py --out results/p1_request_timing_cpu.csv",
+        "P1 CPU single-request timing and independent quality pilot",
+    ),
+    "p1gpu": Source(
+        "p1_request_timing_gpu_smoke.csv",
+        "python scripts/run_request_bench.py --allow-gpu "
+        "--solvers cuopt-pdlp-1e-4 cuopt-pdlp-1e-6 cuopt-barrier-socp "
+        "--time-limit 30 --out results/p1_request_timing_gpu_smoke.csv",
+        "P1 GPU single-request smoke; failed gates remain diagnostic observations",
+    ),
 }
 
 #: Header fields that describe the machine and the software stack rather than
@@ -289,6 +306,16 @@ def fmt_bp(x: float) -> str:
     return _sig3(x)
 
 
+def fmt_bp_four(x: float) -> str:
+    """Four fixed decimals so a slight lot-repair sigma breach stays visible."""
+    return f"{x:.4f}"
+
+
+def fmt_bp_five(x: float) -> str:
+    """Five fixed decimals for strict sigma checks and small sigma excesses."""
+    return f"{x:.5f}"
+
+
 def fmt_pct(x: float) -> str:
     """A fraction printed as a percentage, one decimal, escaped for LaTeX."""
     return f"{100.0 * x:.1f}\\%"
@@ -305,6 +332,11 @@ def fmt_pct_two(x: float) -> str:
     choice is visible at every call site.
     """
     return f"{100.0 * x:.2f}\\%"
+
+
+def fmt_pct_three(x: float) -> str:
+    """A fractional MIP gap as a percentage with three fixed decimals."""
+    return f"{100.0 * x:.3f}\\%"
 
 
 def fmt_signed_pct(x: float) -> str:
@@ -360,6 +392,15 @@ def fmt_sci(x: float) -> str:
     return rf"\ensuremath{{{mant:.1f}\times 10^{{{exp}}}}}"
 
 
+def fmt_sci_four(x: float) -> str:
+    """Four significant figures for objective gaps near a strict threshold."""
+    if x == 0.0:
+        return r"\ensuremath{0}"
+    exp = int(np.floor(np.log10(abs(x))))
+    mant = x / (10.0 ** exp)
+    return rf"\ensuremath{{{mant:.3f}\times 10^{{{exp}}}}}"
+
+
 def fmt_text(x: Any) -> str:
     """A verbatim string from a CSV, escaped."""
     return latex_escape(x)
@@ -369,8 +410,11 @@ FORMATTERS: dict[str, Callable[[Any], str]] = {
     "seconds": fmt_seconds,
     "ratio": fmt_ratio,
     "bp": fmt_bp,
+    "bp4": fmt_bp_four,
+    "bp5": fmt_bp_five,
     "pct": fmt_pct,
     "pct2": fmt_pct_two,
+    "pct3": fmt_pct_three,
     "signed_pct": fmt_signed_pct,
     "pp": fmt_pp,
     "years": fmt_years,
@@ -378,6 +422,7 @@ FORMATTERS: dict[str, Callable[[Any], str]] = {
     "weight": fmt_weight,
     "millions": fmt_millions,
     "sci": fmt_sci,
+    "sci4": fmt_sci_four,
     "text": fmt_text,
 }
 
@@ -2617,12 +2662,138 @@ def _macros_p0() -> list[Macro]:
     return out
 
 
+P1_CPU_SOCP_COLD = {
+    "solver": "clarabel-socp", "request_kind": "fresh_model_cold",
+    "formulation": "mean_cvar_sigma_SOCP",
+}
+P1_GPU_SOCP_COLD = {
+    "solver": "cuopt-barrier-socp", "request_kind": "fresh_model_cold",
+    "formulation": "mean_cvar_sigma_SOCP",
+}
+
+
+def _p1_socp_objective_gap(c: Ctx) -> float:
+    """Compare cold independently scored objectives only on the same model.
+
+    This is diagnostic objective agreement, not an acceptance or speed claim.
+    The model hash includes the instance and the full objective/constraint spec.
+    """
+    for field in ("model_hash", "instance_hash"):
+        cpu = c.text("p1cpu", P1_CPU_SOCP_COLD, field)
+        gpu = c.text("p1gpu", P1_GPU_SOCP_COLD, field)
+        if cpu != gpu:
+            raise MissingData(
+                f"{SOURCES['p1cpu'].filename} and {SOURCES['p1gpu'].filename} "
+                f"have mismatched {field}; cannot compare cold SOCP objectives.")
+    return abs(c.get("p1gpu", P1_GPU_SOCP_COLD, "objective_recomputed")
+               - c.get("p1cpu", P1_CPU_SOCP_COLD, "objective_recomputed"))
+
+
+def _p1_accepted(c: Ctx, key: str, sel: dict[str, Any]) -> str:
+    """Report the recorded acceptance flag, never infer it from solver status."""
+    accepted = c.text(key, sel, "accepted").lower()
+    if accepted not in {"true", "false"}:
+        raise MissingData(
+            f"{SOURCES[key].filename}, row [{_selector_text(sel)}], "
+            f"accepted must be True or False, got '{accepted}'.")
+    return "Yes" if accepted == "true" else "No"
+
+
+def _p1_request_seconds(c: Ctx, key: str, sel: dict[str, Any]) -> float:
+    """A diagnostic single observation, with status and acceptance provenance."""
+    c.text(key, sel, "status")
+    _p1_accepted(c, key, sel)
+    return c.timing(key, sel, "total_request_s")
+
+
+def _macros_p1() -> list[Macro]:
+    """Measured quantity and request pilots; no comparative timing ratios.
+
+    Seconds are single recorded observations, including failed-gate latency.
+    Prose using them must call them diagnostic, report acceptance alongside
+    them, and avoid CPU/GPU or cold/cached performance claims.
+    """
+    s = "P1 measured pilots"
+    out = []
+    for nav, word in ((1e6, "One"), (1e7, "Ten"), (1e8, "Hundred")):
+        for endpoint, title in (("naive-rounding", "Rounded"),
+                                ("lot-milp-repair", "Repair")):
+            sel = {"nav_usd": nav, "endpoint": endpoint}
+            out.append(Macro(
+                f"POneLot{word}{title}SigmaBp", s, "bp4",
+                "independently recomputed lot-pilot sigma TE; strict breaches remain visible",
+                lambda c, sel=sel: c.get("p1lots", sel, "te_sigma_bp")))
+    lot_hundred = {"nav_usd": 1e8, "endpoint": "lot-milp-repair"}
+    out += [
+        Macro("POneLotTenRepairGapPct", s, "pct3",
+              "recorded relative MIP gap on L1 distance, not portfolio return or CVaR",
+              lambda c: c.get("p1lots", {"nav_usd": 1e7, "endpoint": "lot-milp-repair"},
+                              "mip_gap")),
+        Macro("POneLotHundredRepairSigmaExcessBp", s, "bp5",
+              "repaired sigma TE minus the same row's strict sigma target, in bp",
+              lambda c: c.get("p1lots", lot_hundred, "te_sigma_bp")
+                        - c.get("p1lots", lot_hundred, "sigma_target_bp")),
+        Macro("POneLotRowCount", s, "int", "all recorded lot-pilot endpoints",
+              lambda c: c.agg("p1lots", {}, "", "count")),
+        Macro("POneGpuSocpObjectiveGap", s, "sci4",
+              "recorded absolute solver-versus-recomputed objective discrepancy; failed gate",
+              lambda c: c.get("p1gpu", P1_GPU_SOCP_COLD, "objective_discrepancy")),
+        Macro("POneGpuSocpVsCpuObjectiveGap", s, "sci4",
+              "absolute recomputed objective difference of same-model cold SOCPs; diagnostic only",
+              _p1_socp_objective_gap),
+        Macro("POneCpuHighsSigmaBp", s, "bp5", "true sigma TE of the cold CPU MAD request",
+              lambda c: c.get("p1cpu", {"solver": "highs-simplex",
+                                       "request_kind": "fresh_model_cold"}, "te_sigma_bp")),
+        Macro("POneCpuRowCount", s, "int", "all recorded CPU requests",
+              lambda c: c.agg("p1cpu", {}, "", "count")),
+        Macro("POneGpuRowCount", s, "int", "all recorded GPU requests, including rejected rows",
+              lambda c: c.agg("p1gpu", {}, "", "count")),
+        Macro("POneGpuAcceptedCount", s, "int", "requests with recorded acceptance True",
+              lambda c: c.agg("p1gpu", {"accepted": True}, "", "count")),
+        Macro("POneGpuRatioCount", s, "int",
+              "recorded numeric request-ratio count among accepted rows only; no ratio is computed",
+              lambda c: c.agg("p1gpu", {"accepted": True}, "request_ratio", "count_numeric")),
+    ]
+    diagnostic = ("single recorded total-request seconds; diagnostic observation, including "
+                  "failed-gate latency; report acceptance in prose; no performance or ratio claim")
+    out.append(Macro(
+        "POneCpuHighsSeconds", s, "seconds", diagnostic,
+        lambda c: _p1_request_seconds(c, "p1cpu", {
+            "solver": "highs-simplex", "request_kind": "fresh_model_cold"})))
+    for word, kind in (("Cold", "fresh_model_cold"), ("Cached", "same_problem_cached")):
+        sel = {**P1_CPU_SOCP_COLD, "request_kind": kind}
+        out += [
+            Macro(f"POneCpuSocp{word}Seconds", s, "seconds", diagnostic,
+                  lambda c, sel=sel: _p1_request_seconds(c, "p1cpu", sel)),
+            Macro(f"POneCpuSocp{word}SigmaBp", s, "bp5", "true sigma TE of the CPU SOCP request",
+                  lambda c, sel=sel: c.get("p1cpu", sel, "te_sigma_bp")),
+        ]
+    for word, solver, formulation in (
+        ("Loose", "cuopt-pdlp-1e-4", "mean_cvar_mad_LP"),
+        ("Tight", "cuopt-pdlp-1e-6", "mean_cvar_mad_LP"),
+        ("Socp", "cuopt-barrier-socp", "mean_cvar_sigma_SOCP"),
+    ):
+        sel = {"solver": solver, "request_kind": "fresh_model_cold",
+               "formulation": formulation}
+        out += [
+            Macro(f"POneGpu{word}SigmaBp", s, "bp5", "true sigma TE of the cold GPU request",
+                  lambda c, sel=sel: c.get("p1gpu", sel, "te_sigma_bp")),
+            Macro(f"POneGpu{word}Seconds", s, "seconds", diagnostic,
+                  lambda c, sel=sel: _p1_request_seconds(c, "p1gpu", sel)),
+            Macro(f"POneGpu{word}Accepted", s, "text", "recorded independent acceptance, Yes or No",
+                  lambda c, sel=sel: _p1_accepted(c, "p1gpu", sel)),
+            Macro(f"POneGpu{word}Status", s, "text", "recorded solver status, not acceptance",
+                  lambda c, sel=sel: c.text("p1gpu", sel, "status")),
+        ]
+    return out
+
+
 def build_macros() -> list[Macro]:
     macros = (_macros_env() + _macros_m1() + _macros_m3()
               + _macros_m2_solves() + _macros_m2_econ() + _macros_m2_limits()
               + _macros_m6() + _macros_scen() + _macros_warm()
               + _macros_ablation() + _macros_m7() + _macros_m9()
-              + _macros_demo() + _macros_p0())
+              + _macros_demo() + _macros_p0() + _macros_p1())
     seen: set[str] = set()
     for m in macros:
         if m.name in seen:

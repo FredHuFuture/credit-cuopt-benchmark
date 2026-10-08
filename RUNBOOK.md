@@ -1,6 +1,6 @@
 # Benchmark runbook
 
-## Current release policy (2026-10-07)
+## Current release-candidate policy (2026-10-08)
 
 Start with the CPU-only artifact checks in README.md. A successful number
 generator establishes provenance, not publication readiness: inspect the
@@ -16,7 +16,29 @@ The current paper studies credit portfolio optimization with cuOpt.
 - Preserve all release measurements. Write new runs to new paths; never
   delete a CSV to make the number generator act as a to-do list.
 - Long GPU sessions are optional future measurement work, not required for
-  rebuilding the release PDF. Do not run them on a contended desktop.
+rebuilding the release PDF. Do not run them on a contended desktop.
+
+### Supplemental pilots already included in the candidate
+
+The paper's Appendix B and `NEXT_VERSION.md` report the new single-request
+timing lane and cash-aware quantity pilot. No additional GPU run is required
+to build this revision. Existing `p1_*.csv` files are archived observations,
+including rejected points and a capped feasible MILP incumbent, not new
+speedup evidence. To run a separate small replication, use fresh filenames:
+
+```bash
+python scripts/run_bond_lots.py --out results/p1_bond_lots_replication.csv
+python scripts/run_request_bench.py --out results/p1_request_timing_replication.csv
+# Optional, after checking GPU availability. 30s is the full request cap.
+python scripts/run_request_bench.py --allow-gpu --time-limit 30 \
+  --solvers cuopt-pdlp-1e-4 cuopt-pdlp-1e-6 cuopt-barrier-socp \
+  --out results/p1_request_timing_gpu_replication.csv
+```
+
+The runners refuse to overwrite an existing output. The GPU launch guard is
+an external preflight, not continuous exclusion inside the timing runner.
+Record device context and inspect independent quality gates before interpreting
+any wall-clock observation. Never change the gate to admit a rejected row.
 
 The remaining sections document the **historical August sessions**. Their
 intermediate interpretations, macro counts and completion criteria are

@@ -1,0 +1,29 @@
+{
+  "schema": "p1-bond-lots-v1",
+  "utc": "2026-10-08T21:24:14.167937+00:00",
+  "platform": "Linux-6.6.114.1-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "python": "3.12.13",
+  "packages": {
+    "numpy": "2.4.6",
+    "cvxpy": "1.9.2",
+    "clarabel": "0.11.1",
+    "highspy": "1.15.1"
+  },
+  "git_head": "feeee9e16b280e9e674781c4b8e1858a287de912",
+  "source_sha256": {
+    "scripts/run_bond_lots.py": "d7c3f0e1bae91e455107735712272a3d5d32de8218ac7036e5c0e3b54595f47b",
+    "src/bond_lots.py": "f46f421c497b73d305091760dab7f0978e89ffa51193f60ed5cd496928de48cb",
+    "src/credit.py": "57005ecd8e724bb1d59d29564f61d098f9c3afaab3ab481b2ca6b3e14a54b25e",
+    "src/scenarios.py": "5b166544394591132a475e32c6cbd582b3fa2bf601efa5f32ef8890a91c80598",
+    "src/universe.py": "ab56af62f7b3e953133d5c44eca7becace01af47e786f6d84bc1d0b426ef7be7"
+  },
+  "command": [
+    "scripts/run_bond_lots.py",
+    "--out",
+    "results/p1_bond_lots_cpu.csv"
+  ],
+  "assumptions": "hypothetical uniform lots; synthetic settlement-price proxy; accrued=0; cash excess return=0",
+  "timing": "one observation per endpoint/NAV; single request excluding scenario generation, imports and output I/O; repair includes source request; no speed ratios",
+  "threads": "HiGHS automatic; BLAS environment controls apply; no thread-matched performance claim",
+  "scope": "continuous SOCP reference; MILP restores linear constraints only; sigma post-check, NOT MISOCP"
+}
