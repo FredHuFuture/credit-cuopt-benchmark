@@ -3,5 +3,7 @@
 *.py text eol=lf
 *.tex text eol=lf
 *.bib text eol=lf
+# Preserve archived measurement bytes, including historical line endings.
+*.csv -text
 *.pdf binary
 *.png binary
