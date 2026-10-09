@@ -24,6 +24,11 @@ is claimed.
 - Generator-derived paper numbers, regression tests, original result CSVs,
   metadata and portfolio sidecars accompany the new text. PDF date and
   document metadata are explicit; source packaging retains strict checks.
+- The manuscript discloses substantive assistance from Claude/Claude Code
+  and OpenAI Codex, including literature discovery, experimental planning,
+  coding, analysis and writing. It distinguishes executed measurements from
+  model-supplied numerical answers and retains author responsibility.
+  The author line identifies an independent researcher.
 
 ## What did not change
 
