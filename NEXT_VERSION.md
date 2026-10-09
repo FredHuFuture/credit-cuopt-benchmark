@@ -1,10 +1,8 @@
-# Supplemental pilots in the current revision candidate
+# Supplemental pilots in version 1.1.0
 
-At Fred's request, these local extensions are included in Appendix B of the
-current paper and its prepared release package. They are not a separate paper.
-The previously published v1.0.0 assets and historical measurements are retained.
-Fred performs all final publication actions. Do not push, upload a release,
-submit a paper, or post promotion from this workflow.
+These extensions are included in Appendix B of the working paper and its
+version 1.1.0 artifact. They are not a separate paper. Historical measurements
+are retained for comparison and reproducibility.
 
 ## Scope
 
@@ -242,10 +240,8 @@ these earlier checks as verification of a later package.
 - [ ] Freeze the single-request timing protocol and run matched, isolated
       repeats on the exact cells chosen for a new paper claim.
 - [ ] Keep timing observations separate from market or investment evidence.
-- [x] Include the measured pilots and all failed gates in the current local
-      manuscript candidate without adding a comparative timing claim.
-- [ ] Fred reviews the candidate and personally performs final publication.
+- [x] Include the measured pilots and all failed gates in the version 1.1.0
+      manuscript without adding a comparative timing claim.
 
-The existing published PDF and source archive remain unchanged. The current
-local candidate includes these pilots with their limits; resolving the GPU
+Version 1.1.0 includes these pilots with their limits. Resolving the GPU
 baseline is required for a new speed claim, not for reporting these outcomes.

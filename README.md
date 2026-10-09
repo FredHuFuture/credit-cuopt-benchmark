@@ -18,11 +18,11 @@ are distributed with each release. This repository starts from a reviewed
 snapshot; earlier development history and private correspondence are not
 published.
 
-The current local revision candidate includes the supplemental experiments in
+Version 1.1.0 includes the supplemental experiments in
 [NEXT_VERSION.md](NEXT_VERSION.md): single-request timing and a hypothetical
 bond-lot repair pilot, now reported in the paper's Appendix B. They add
-implementation evidence, not a new speedup or real-market claim. The previously
-published v1.0.0 assets are unchanged; this candidate awaits Fred's publication.
+implementation evidence, not a new speedup or real-market claim. Historical
+v1.0.0 measurements are retained for comparison and reproducibility.
 
 ## What the P0 review changed
 

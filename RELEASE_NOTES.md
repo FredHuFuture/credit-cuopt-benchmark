@@ -1,12 +1,12 @@
-# Working paper and artifact revision, v1.1.0 candidate
+# Working paper and artifact, v1.1.0
 
 **Credit Portfolio Optimization with cuOpt: A Reproducible Benchmark of Risk,
 Constraints, and Solver Endpoints** by Fred Hu.
 
-Prepared locally for Fred's review and final publication. This file does not
-assert that v1.1.0 is live. The existing public v1.0.0 assets remain unchanged.
-No arXiv/SSRN identifier, peer-reviewed acceptance, or practitioner endorsement
-is claimed.
+This version combines the revised working paper, code, archived results and
+reproduction instructions in one package. It is not a peer-reviewed
+publication and does not claim practitioner endorsement or an arXiv/SSRN
+identifier.
 
 ## What changed
 
@@ -29,6 +29,8 @@ is claimed.
   coding, analysis and writing. It distinguishes executed measurements from
   model-supplied numerical answers and retains author responsibility.
   The author line identifies an independent researcher.
+- The manuscript records the author's declarations of no research funding
+  and no conflicts of interest.
 
 ## What did not change
 
@@ -50,7 +52,7 @@ quantity sidecars and paper sources. README.md gives CPU-only checks and
 optional GPU replication; NEXT_VERSION.md describes the supplemental protocol.
 Do not overwrite archived result files or pool pilot times with the old grid.
 
-The prepared release assets are the revised PDF, independently verified
+The release package consists of the revised PDF, independently verified
 minimal LaTeX source archive and SHA256SUMS.txt. The source archive is for
 arXiv preparation; it is not the entire code artifact and does not submit the
-paper. Fred performs all repository/release uploads and paper submissions.
+paper. Repository publication and paper submission are separate actions.
